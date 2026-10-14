@@ -33,7 +33,7 @@ Los formularios piden datos personales y financieros (renta, deudas, DICOM). Por
    - `ALLOWED_ORIGINS` = `https://imobu.cl,https://www.imobu.cl`
    - `TURNSTILE_SECRET` = la secret key de Turnstile
    - Para recibir por correo: `RESEND_API_KEY`, `NOTIFY_EMAIL` (ej. `contacto@imobu.cl`) y `FROM_EMAIL` (un remitente verificado en Resend)
-   - Opcional, para tu CRM o planilla: `FORWARD_WEBHOOK_URL`
+   - Para que los clientes (contacto y evaluación) lleguen a brouk.app: `FORWARD_WEBHOOK_URL` y `FORWARD_WEBHOOK_TOKEN`, los entrega el equipo de Brouk. Los postulantes a broker no se reenvían: se gestionan en la pestaña Postulantes de la intranet.
    - Para guardar cada lead en la base (recomendado: si el correo falla, el dato no se pierde): ejecuta `supabase/leads.sql` después de `intranet.sql` y agrega `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API → service_role). Esta clave es **secreta**: solo en Vercel, nunca en el código. Los leads se leen desde Supabase → Table Editor → `imobu_leads`.
 4. En la intranet → Formularios: escribe `/api/formulario` como receptor y pega la **site key** de Turnstile. Presiona **Guardar y publicar** (o, en modo local, descarga `config.js` y reemplázalo).
 5. Prueba cada formulario una vez publicado.

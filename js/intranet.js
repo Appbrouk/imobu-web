@@ -122,7 +122,7 @@
     construido = true;
     var todas = SECCIONES.map(function (s) { return { id: s.id, titulo: s.titulo }; })
       .concat([{ id: 'proyectos', titulo: 'Proyectos' }, { id: 'asesores', titulo: 'Asesores' }])
-      .concat(ONLINE ? [{ id: 'historial', titulo: 'Historial' }] : [])
+      .concat(ONLINE ? [{ id: 'postulantes', titulo: 'Postulantes' }, { id: 'historial', titulo: 'Historial' }] : [])
       .concat([{ id: 'publicar', titulo: ONLINE ? 'Respaldo' : 'Cómo publicar' }]);
     todas.forEach(function (s, i) {
       var b = document.createElement('button');
@@ -143,7 +143,7 @@
     construirProyectos();
     var pAse = nuevoPanel('asesores');
     pAse.addEventListener('input', alEditar);
-    if (ONLINE) construirHistorial();
+    if (ONLINE) { construirPostulantes(); construirHistorial(); }
     construirPublicar();
     listarProyectos(); listarAsesores();
     mostrar('general');
@@ -158,6 +158,7 @@
     tabs.querySelectorAll('[role="tab"]').forEach(function (b) { b.setAttribute('aria-selected', b.id === 'tab-' + id ? 'true' : 'false'); });
     paneles.querySelectorAll('.adm-panel').forEach(function (p) { p.hidden = p.id !== 'panel-' + id; });
     if (id === 'historial') cargarHistorial();
+    if (id === 'postulantes') cargarPostulantes();
   }
   function reconstruir() {
     SECCIONES.forEach(function (s) {
@@ -287,6 +288,40 @@
   }
 
   // ── Historial (solo conectado) ──
+  // ── Postulantes a broker (tabla imobu_leads; los clientes van a Brouk, ver api/formulario.js) ──
+  var ESTADOS = ['Nuevo', 'Contactado', 'Entrevista', 'Aceptado', 'Activo', 'Descartado'];
+  function construirPostulantes() {
+    var p = nuevoPanel('postulantes');
+    p.innerHTML = '<h2>Postulantes a broker</h2><p>Llegan desde los formularios "Sé broker" y de registro al programa. Cambia el estado y escribe notas; se guardan solos. Al aceptar a alguien, créalo como asesor en brouk.app.</p>' +
+      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th>Fecha</th><th>Postulante</th><th class="col-ocultable">Perfil</th><th>Estado</th><th class="col-ocultable">Notas</th></tr></thead><tbody id="post-list"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>';
+    p.addEventListener('change', function (e) {
+      var el = e.target.closest('[data-lead]');
+      if (!el) return;
+      var cambio = {};
+      cambio[el.getAttribute('data-campo')] = el.value.trim();
+      sb.from('imobu_leads').update(cambio).eq('id', Number(el.getAttribute('data-lead'))).then(function (r) {
+        toast(r.error ? 'No se pudo guardar el cambio' : 'Guardado');
+      });
+    });
+  }
+  function cargarPostulantes() {
+    if (!sb) return;
+    sb.from('imobu_leads').select('id, recibido, tipo, asesor, estado, notas, datos')
+      .in('tipo', ['postulacion-broker', 'registro-asesor']).order('id', { ascending: false }).limit(200).then(function (r) {
+      var tb = $('post-list');
+      if (r.error) { tb.innerHTML = '<tr><td colspan="5">No se pudieron cargar los postulantes.</td></tr>'; return; }
+      tb.innerHTML = r.data.length ? r.data.map(function (l) {
+        var d = l.datos || {};
+        var perfil = l.tipo === 'registro-asesor' ? 'Registro de interés · ' + (d.interes || '') : [d.comuna, d.experiencia, d.disponibilidad].filter(Boolean).join(' · ');
+        return '<tr><td>' + esc(fecha(l.recibido)) + '</td>' +
+          '<td><strong>' + esc(d.nombre || '—') + '</strong><br><span class="adm-hint">' + esc(d.telefono || '') + (d.email ? ' · ' + esc(d.email) : '') + '</span></td>' +
+          '<td class="col-ocultable">' + esc(perfil) + (d.linkedin ? ' · <a href="' + esc(d.linkedin) + '" target="_blank" rel="noopener">LinkedIn</a>' : '') + '</td>' +
+          '<td><select data-lead="' + l.id + '" data-campo="estado">' + ESTADOS.map(function (e) { return '<option' + (e === l.estado ? ' selected' : '') + '>' + e + '</option>'; }).join('') + '</select></td>' +
+          '<td class="col-ocultable"><input data-lead="' + l.id + '" data-campo="notas" maxlength="1000" value="' + esc(l.notas || '') + '" placeholder="Notas"></td></tr>';
+      }).join('') : '<tr><td colspan="5">Aún no hay postulantes.</td></tr>';
+    });
+  }
+
   function construirHistorial() {
     var p = nuevoPanel('historial');
     p.innerHTML = '<h2>Historial de cambios</h2><p>Cada publicación queda registrada con su autor. Puedes cargar una versión anterior como borrador, revisarla y volver a publicarla.</p>' +

@@ -8,12 +8,17 @@
 //   RESEND_API_KEY       Clave de Resend para enviar el aviso por correo (opcional)
 //   NOTIFY_EMAIL         Correo que recibe los formularios. Ej: contacto@imobu.cl
 //   FROM_EMAIL           Remitente verificado en Resend. Ej: web@imobu.cl
-//   FORWARD_WEBHOOK_URL  URL privada a la que reenviar los datos (CRM, Make, Zapier…) (opcional)
+//   FORWARD_WEBHOOK_URL  Endpoint de brouk.app que recibe los CLIENTES (contacto y evaluación); los
+//                        formularios de brokers no se reenvían, quedan solo en imobu_leads (opcional)
+//   FORWARD_WEBHOOK_TOKEN  Token que Brouk emite para ese endpoint; va en Authorization: Bearer (opcional)
 //   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY  Guardan cada lead en la tabla imobu_leads (ver supabase/leads.sql).
 //                        La service_role es SECRETA: solo aquí, nunca en js/conexion.js ni en la intranet.
 // ─────────────────────────────────────────────────────────────
 
+import { randomUUID } from 'node:crypto';
+
 const MAX_BYTES = 20000;
+const CLIENTES = ['contacto', 'evaluacion'];   // tipos que se reenvían a Brouk; el resto son postulantes a broker
 const LIMITE_POR_IP = 8;              // envíos permitidos por IP…
 const VENTANA_MS = 10 * 60 * 1000;    // …cada 10 minutos (por instancia; para producción usar Upstash/Redis)
 const intentos = new Map();
@@ -125,11 +130,13 @@ async function notificar(tipo, datos, pagina) {
       })
     }));
   }
-  if (process.env.FORWARD_WEBHOOK_URL) {
+  if (process.env.FORWARD_WEBHOOK_URL && CLIENTES.includes(tipo)) {
+    const headers = { 'Content-Type': 'application/json', 'Idempotency-Key': randomUUID() };
+    if (process.env.FORWARD_WEBHOOK_TOKEN) headers.Authorization = `Bearer ${process.env.FORWARD_WEBHOOK_TOKEN}`;
     tareas.push(fetch(process.env.FORWARD_WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, pagina, recibido: new Date().toISOString(), datos })
+      headers,
+      body: JSON.stringify({ origen: 'imobu-web', tipo, pagina, recibido: new Date().toISOString(), asesor: datos.asesor || null, datos })
     }));
   }
   const resultados = await Promise.allSettled(tareas);
