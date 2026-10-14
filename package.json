@@ -1,0 +1,27 @@
+{
+  "name": "imobu-web",
+  "version": "1.0.0",
+  "description": "Sitio web de IMOBU Asesoría Inmobiliaria (Astro + Vercel)",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Appbrouk/imobu-web.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Appbrouk/imobu-web/issues"
+  },
+  "homepage": "https://github.com/Appbrouk/imobu-web#readme",
+  "dependencies": {
+    "astro": "5.18.2"
+  },
+  "private": true
+}

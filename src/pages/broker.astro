@@ -1,44 +1,7 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sé Broker Inmobiliario — Programa Brokers IMOBU</title>
-<meta name="description" content="Conviértete en broker inmobiliario con IMOBU: capacitación sin costo, horario flexible, proyectos de inmobiliarias de trayectoria y gestión hipotecaria para tus clientes. Postula aquí.">
-<meta name="theme-color" content="#DC0E54">
-<meta property="og:title" content="Conviértete en Broker Inmobiliario IMOBU">
-<meta property="og:description" content="Genera ingresos asesorando inversiones inmobiliarias, con capacitación y el respaldo de IMOBU.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://imobu.cl/broker.html">
-<meta property="og:image" content="https://imobu.cl/img/logo-imobu.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/imobu.css">
-</head>
-<body>
-<a class="skip-link" href="#contenido">Saltar al contenido</a>
-
-<!-- NAV -->
-<header class="site-header">
-  <nav class="nav wrap" aria-label="Principal">
-    <a href="index.html" class="nav__logo"><img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria — volver al inicio" width="120" height="44"></a>
-    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2E31" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-    <div class="nav__links" id="nav-links">
-      <a href="index.html">Inicio</a>
-      <a href="proyectos.html">Proyectos</a>
-      <a href="index.html#ciclo">Cómo invertir</a>
-      <a href="index.html#nosotros">Nosotros</a>
-      <a href="broker.html" class="nav__broker is-active" aria-current="page">Sé broker</a>
-      <a href="#contacto">Contacto</a>
-    </div>
-    <a href="#postula" class="btn btn--primary nav__cta">Postular ahora</a>
-  </nav>
-</header>
-
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Sé Broker Inmobiliario — Programa Brokers IMOBU" description="Conviértete en broker inmobiliario con IMOBU: capacitación sin costo, horario flexible, proyectos de inmobiliarias de trayectoria y gestión hipotecaria para tus clientes. Postula aquí." og={{ title: 'Conviértete en Broker Inmobiliario IMOBU', description: 'Genera ingresos asesorando inversiones inmobiliarias, con capacitación y el respaldo de IMOBU.', url: 'https://imobu.cl/broker.html' }} active="broker" script="broker" wa="Hola IMOBU, quiero saber más del Programa Brokers">
 <main id="contenido">
 
 <!-- HERO -->
@@ -350,49 +313,4 @@
 </section>
 
 </main>
-
-<!-- FOOTER -->
-<footer id="contacto" class="footer">
-  <div class="wrap footer__grid">
-    <div class="footer__col footer__brand">
-      <img src="img/logo-imobu-negativo.png" alt="IMOBU Asesoría Inmobiliaria" width="200" height="96">
-      <p>Asesoría y gestión integral para invertir en propiedades con seguridad y tranquilidad.</p>
-    </div>
-    <div class="footer__col">
-      <strong>Navegación</strong>
-      <a href="proyectos.html">Proyectos</a>
-      <a href="index.html#ciclo">Cómo invertir</a>
-      <a href="evaluacion.html">Evaluación de perfil</a>
-      <a href="broker.html">Sé broker IMOBU</a>
-      <a href="marcela/index.html">Asesora Marcela Díaz</a>
-    </div>
-    <div class="footer__col">
-      <strong>Contacto</strong>
-      <span data-cfg="sitio.direccion">Badajoz 130, Las Condes</span>
-      <a href="tel:+56984336430" data-cfg-tel>+56 9 8433 6430</a>
-      <a href="mailto:contacto@imobu.cl" data-cfg-mail>contacto@imobu.cl</a>
-      <span style="color: var(--on-dark)" data-cfg="sitio.horario">Lunes a viernes, 9:00 a 18:30 h</span>
-    </div>
-    <div class="footer__col">
-      <strong>Síguenos</strong>
-      <a href="https://www.instagram.com/imobu.cl/" target="_blank" rel="noopener" data-cfg-href="sitio.instagram">Instagram</a>
-      <a href="https://www.facebook.com/imobuasesoria/" target="_blank" rel="noopener" data-cfg-href="sitio.facebook">Facebook</a>
-      <a href="https://www.linkedin.com/company/imobu/" target="_blank" rel="noopener" data-cfg-href="sitio.linkedin">LinkedIn</a>
-    </div>
-  </div>
-  <div class="wrap footer__bottom">
-    <span>© 2026 IMOBU. Todos los derechos reservados.</span>
-    <span style="display: flex; gap: 20px"><a href="legal.html#terminos">Términos y condiciones</a><a href="legal.html#privacidad">Política de privacidad</a><a href="intranet.html" title="Acceso para el equipo IMOBU"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 4px"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Intranet</a></span>
-  </div>
-</footer>
-
-<a class="wa-float" href="https://wa.me/56984336430?text=Hola%20IMOBU%2C%20quiero%20saber%20m%C3%A1s%20del%20Programa%20Brokers" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
-  <svg width="30" height="30" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.8 12 12 0 004.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg>
-</a>
-
-<script src="js/config.js"></script>
-<script src="/api/config"></script>
-<script src="js/imobu.js"></script>
-<script src="js/broker.js"></script>
-</body>
-</html>
+</Base>

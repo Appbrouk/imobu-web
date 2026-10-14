@@ -1,0 +1,211 @@
+{
+  "sitio": {
+    "nombre": "IMOBU Asesoría Inmobiliaria",
+    "telefono": "+56 9 8433 6430",
+    "whatsapp": "56984336430",
+    "email": "contacto@imobu.cl",
+    "direccion": "Badajoz 130, Las Condes",
+    "horario": "Lunes a viernes, 9:00 a 18:30 h",
+    "instagram": "https://www.instagram.com/imobu.cl/",
+    "facebook": "https://www.facebook.com/imobuasesoria/",
+    "linkedin": "https://www.linkedin.com/company/imobu/"
+  },
+  "cifras": {
+    "experiencia": "+8 años",
+    "inversionistas": "+450",
+    "inmobiliarias": "12"
+  },
+  "finanzas": {
+    "uf": 41065,
+    "tasaAnual": 4.5,
+    "plazoAnos": 25,
+    "piePct": 20,
+    "dividendoMaxPct": 25,
+    "cargaMaxPct": 45,
+    "rentaMinima": 650000
+  },
+  "brokers": {
+    "comisionPct": 1,
+    "proximaGeneracion": "Lunes 2 de noviembre",
+    "duracionOnboarding": "4 semanas"
+  },
+  "formularios": {
+    "endpoint": "",
+    "turnstileSiteKey": ""
+  },
+  "asesores": [
+    {
+      "id": "marcela-diaz",
+      "nombre": "Marcela Díaz",
+      "cargo": "Asesora en inversiones inmobiliarias",
+      "whatsapp": "56951497482",
+      "telefono": "+56 9 5149 7482",
+      "instagram": "https://www.instagram.com/marceladiazinversiones/",
+      "tiktok": "https://www.tiktok.com/@marceladiazinversiones",
+      "linkedin": "https://www.linkedin.com/in/marcela-diaz-carvajal-325b1a1b1/",
+      "facebook": "https://www.facebook.com/profile.php?id=100094086452130",
+      "foto": "https://mdiaz.cl/assets/marce-hero.jpeg",
+      "fotoTrabajo": "https://mdiaz.cl/assets/marce-pc.jpeg",
+      "fotoLlamada": "https://mdiaz.cl/assets/marce-llamada.jpeg"
+    }
+  ],
+  "proyectos": [
+    {
+      "id": "linares42",
+      "nombre": "Proyecto Linares42",
+      "inmobiliaria": "Surmonte",
+      "comuna": "Providencia",
+      "uf": 7650,
+      "entrega": "futura",
+      "dorm": [
+        1,
+        2,
+        3
+      ],
+      "m2": "38 a 92 m²",
+      "destacado": true,
+      "ejemplo": false,
+      "foto": "photo-1626273947634-823f04de159e",
+      "alt": "Fachada de edificio residencial moderno con balcones de vidrio"
+    },
+    {
+      "id": "don-rafael",
+      "nombre": "Proyecto Don Rafael",
+      "inmobiliaria": "Crescer",
+      "comuna": "Santiago Centro",
+      "uf": 2521,
+      "entrega": "inmediata",
+      "dorm": [
+        0,
+        1,
+        2
+      ],
+      "m2": "24 a 52 m²",
+      "destacado": true,
+      "ejemplo": false,
+      "foto": "photo-1624204386084-dd8c05e32226",
+      "alt": "Edificio de departamentos con balcones al atardecer"
+    },
+    {
+      "id": "nunoa-2024",
+      "nombre": "Proyecto Ñuñoa 2024",
+      "inmobiliaria": "Fuenzalida",
+      "comuna": "Ñuñoa",
+      "uf": 3636,
+      "entrega": "inmediata",
+      "dorm": [
+        1,
+        2
+      ],
+      "m2": "32 a 58 m²",
+      "destacado": true,
+      "ejemplo": false,
+      "foto": "photo-1623051786509-57224cdc43e1",
+      "alt": "Edificio residencial de altura media con balcones"
+    },
+    {
+      "id": "mirador-el-llano",
+      "nombre": "Proyecto Mirador El Llano",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "San Miguel",
+      "uf": 2890,
+      "entrega": "futura",
+      "dorm": [
+        1,
+        2
+      ],
+      "m2": "30 a 55 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1545324418-cc1a3fa10c00",
+      "alt": "Edificio de departamentos de gran altura visto desde abajo"
+    },
+    {
+      "id": "vista-ecuador",
+      "nombre": "Proyecto Vista Ecuador",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "Estación Central",
+      "uf": 2350,
+      "entrega": "inmediata",
+      "dorm": [
+        0,
+        1
+      ],
+      "m2": "22 a 36 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1583338850703-bc602b103674",
+      "alt": "Edificio moderno blanco y gris con balcones"
+    },
+    {
+      "id": "alto-mirador",
+      "nombre": "Proyecto Alto Mirador",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "La Florida",
+      "uf": 3120,
+      "entrega": "futura",
+      "dorm": [
+        2,
+        3
+      ],
+      "m2": "48 a 74 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1760033266684-9febfe831a5b",
+      "alt": "Edificio moderno con balcones curvos y ventanales"
+    },
+    {
+      "id": "plaza-hospitales",
+      "nombre": "Proyecto Plaza Hospitales",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "Independencia",
+      "uf": 2480,
+      "entrega": "inmediata",
+      "dorm": [
+        0,
+        1,
+        2
+      ],
+      "m2": "23 a 50 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1759073254456-06026e026c08",
+      "alt": "Edificios residenciales modernos con balcones y palmeras"
+    },
+    {
+      "id": "jardin-irarrazaval",
+      "nombre": "Proyecto Jardín Irarrázaval",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "Ñuñoa",
+      "uf": 4250,
+      "entrega": "futura",
+      "dorm": [
+        1,
+        2,
+        3
+      ],
+      "m2": "35 a 80 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1592276040264-e10344a6a10e",
+      "alt": "Edificio beige con árboles al frente"
+    },
+    {
+      "id": "barrio-italia-living",
+      "nombre": "Proyecto Barrio Italia Living",
+      "inmobiliaria": "Inmobiliaria aliada",
+      "comuna": "Providencia",
+      "uf": 5180,
+      "entrega": "inmediata",
+      "dorm": [
+        1,
+        2
+      ],
+      "m2": "34 a 62 m²",
+      "destacado": false,
+      "ejemplo": true,
+      "foto": "photo-1605267143746-999bf61d0d08",
+      "alt": "Edificio de hormigón beige bajo cielo azul"
+    }
+  ]
+}

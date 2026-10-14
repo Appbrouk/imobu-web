@@ -356,7 +356,7 @@
       ? '<h2>Respaldo</h2><p>Los cambios se publican con el botón <strong>Guardar y publicar</strong> y se ven en el sitio en menos de un minuto. Aquí puedes descargar un respaldo o cargar uno guardado.</p>' +
         '<div class="actions"><button type="button" class="btn btn--outline btn--sm" id="btn-descargar-2">Descargar respaldo (config.js)</button><button type="button" class="btn btn--outline btn--sm" id="btn-cargar">Cargar un respaldo</button><button type="button" class="btn btn--outline btn--sm" id="btn-descartar">Descartar borrador</button></div>'
       : '<h2>Cómo publicar los cambios</h2><p>En modo local este panel no modifica el sitio publicado: genera el archivo de parámetros.</p>' +
-        '<div class="adm-help"><strong>Pasos</strong><ol><li>Edita lo que necesites (se guarda como borrador en este navegador).</li><li>Presiona <strong>Vista previa</strong> para revisar el sitio con tus cambios.</li><li>Presiona <strong>Descargar config.js</strong>.</li><li>Reemplaza <code>js/config.js</code> en el sitio y vuelve a publicar.</li></ol></div>' +
+        '<div class="adm-help"><strong>Pasos</strong><ol><li>Edita lo que necesites (se guarda como borrador en este navegador).</li><li>Presiona <strong>Vista previa</strong> para revisar el sitio con tus cambios.</li><li>Presiona <strong>Descargar config.js</strong>.</li><li>Reemplaza el contenido de <code>src/data/config.json</code> en el repositorio (solo el JSON, sin <code>var IMOBU_CONFIG =</code>) y vuelve a publicar.</li></ol></div>' +
         '<div class="actions" style="margin-top: 24px"><button type="button" class="btn btn--outline btn--sm" id="btn-cargar">Cargar un config.js guardado</button><button type="button" class="btn btn--outline btn--sm" id="btn-descartar">Descartar borrador</button></div>';
     $('btn-cargar').addEventListener('click', function () { $('file-input').click(); });
     $('btn-descartar').addEventListener('click', function () {
@@ -396,6 +396,14 @@
       try { localStorage.removeItem('imobu-config-borrador'); } catch (e) { /* sin almacenamiento */ }
       guardarBorrador();
       toast('Cambios publicados');
+      // Las fichas de proyecto se generan en build: pedimos un redeploy (ver api/rebuild.js)
+      sb.auth.getSession().then(function (q) {
+        var token = q.data.session && q.data.session.access_token;
+        if (!token) return;
+        fetch('/api/rebuild', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).then(function (r) { return r.json(); })
+          .then(function (j) { if (j.ok) toast('Sitio regenerándose: los cambios se ven en 1 a 2 minutos'); })
+          .catch(function () { /* sin hook: los textos y precios igual se actualizan vía /api/config */ });
+      });
     });
   }
 

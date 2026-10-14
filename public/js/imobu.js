@@ -83,7 +83,7 @@ var IMOBU = (function () {
   function foto(p, w) {
     return /^https?:\/\//.test(p.foto) ? p.foto : 'https://images.unsplash.com/' + p.foto + '?w=' + (w || 800) + '&q=80&auto=format&fit=crop';
   }
-  function url(p) { return conAsesor(BASE + 'proyecto.html?id=' + encodeURIComponent(p.id)); }
+  function url(p) { return conAsesor(BASE + 'proyectos/' + encodeURIComponent(p.id) + '.html'); }
   function evalUrl(p) { return conAsesor(BASE + 'evaluacion.html' + (p ? '?proyecto=' + encodeURIComponent(p.nombre) : '')); }
   function wa(texto, numero) { return 'https://wa.me/' + (numero || cfg.WHATSAPP) + '?text=' + encodeURIComponent(texto); }
 

@@ -60,6 +60,7 @@ Botón **Intranet** al final de cada página → `intranet.html`.
 5. En Authentication → URL Configuration, agrega `https://imobu.cl/intranet.html` como URL de redirección permitida.
 6. Copia la *Project URL* y la *anon / publishable key* en `js/conexion.js` (son públicas por diseño). Nunca uses la `service_role`.
 7. En Vercel agrega las variables `SUPABASE_URL` y `SUPABASE_ANON_KEY` (las mismas) para que `/api/config` entregue los parámetros publicados.
+8. En Vercel → Settings → Git → Deploy Hooks crea un hook para `main` y guárdalo como `VERCEL_DEPLOY_HOOK_URL`: las fichas de proyecto se generan en build, y la intranet pide un redeploy al publicar (`api/rebuild.js`).
 
 Mientras `js/conexion.js` esté vacío, la intranet funciona en **modo local**: sin clave, solo genera `config.js` para subirlo a mano (no puede cambiar el sitio publicado).
 

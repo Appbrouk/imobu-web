@@ -2,15 +2,14 @@ IMOBU ASESORÍA INMOBILIARIA — SITIO WEB (versión de revisión)
 ================================================================
 
 CÓMO VERLA
-1. Descomprime el zip (doble clic sobre el archivo).
-2. Entra a la carpeta IMOBU-web y haz doble clic en  index.html
-   Se abre en tu navegador (recomendado: Chrome).
-3. Necesitas internet: las fotos y la tipografía se cargan desde la web.
-   Es más cómodo revisarla en computador; en el celular los zip con páginas no abren bien.
+1. Instala Node.js (https://nodejs.org) si no lo tienes.
+2. En una terminal, dentro de la carpeta IMOBU-web:  npm install   y luego   npm run dev
+3. Abre http://localhost:4321 en el navegador (recomendado: Chrome).
+   Necesitas internet: las fotos y la tipografía se cargan desde la web.
 
 QUÉ REVISAR
 - index.html ............ Inicio
-- proyectos.html ........ Catálogo con filtros (desde ahí se abre la ficha de cada proyecto y su simulador de dividendo)
+- proyectos.html ........ Catálogo con filtros; cada proyecto tiene su ficha en /proyectos/<id>.html con simulador de dividendo
 - evaluacion.html ....... Evaluación crediticia del cliente en 5 pasos
 - broker.html ........... Programa "Sé broker IMOBU"
 - marcela/index.html .... Landing de la asesora Marcela Díaz
@@ -29,5 +28,6 @@ CÓMO DAR COMENTARIOS
 Indica página + sección + qué cambiarías. Una captura de pantalla ayuda mucho.
 
 PARA QUIEN LA VAYA A PUBLICAR (técnico)
-Las carpetas api/ y supabase/ y los archivos vercel.json, .vercelignore y SEGURIDAD.md
-sirven para publicarla en Vercel con formularios seguros e intranet con clave. Instrucciones en SEGURIDAD.md.
+El sitio se construye con Astro (src/pages, src/layouts; lo estático va en public/). Las carpetas api/ y supabase/
+y los archivos vercel.json y SEGURIDAD.md sirven para publicarla en Vercel con formularios seguros e intranet con clave.
+Los parámetros del sitio están en src/data/config.json y, una vez conectada la intranet, en Supabase.

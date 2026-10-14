@@ -1,43 +1,7 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evaluación de perfil inversionista — IMOBU</title>
-<meta name="description" content="Completa tu evaluación de perfil en 5 minutos: un asesor IMOBU analizará tus ingresos, ahorro y objetivos para recomendarte proyectos y gestionar tu crédito hipotecario.">
-<meta name="theme-color" content="#DC0E54">
-<meta property="og:title" content="Evalúa tu perfil de inversionista — IMOBU">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://imobu.cl/evaluacion.html">
-<meta property="og:image" content="https://imobu.cl/img/logo-imobu.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/imobu.css">
-</head>
-<body>
-<a class="skip-link" href="#contenido">Saltar al contenido</a>
-
-<!-- NAV -->
-<header class="site-header">
-  <nav class="nav wrap" aria-label="Principal">
-    <a href="index.html" class="nav__logo"><img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria — volver al inicio" width="120" height="44"></a>
-    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2E31" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-    <div class="nav__links" id="nav-links">
-      <a href="index.html">Inicio</a>
-      <a href="proyectos.html">Proyectos</a>
-      <a href="index.html#ciclo">Cómo invertir</a>
-      <a href="index.html#nosotros">Nosotros</a>
-      <a href="broker.html" class="nav__broker">Sé broker</a>
-      <a href="#contacto">Contacto</a>
-    </div>
-    <a href="https://wa.me/56984336430?text=Hola%20IMOBU%2C%20tengo%20dudas%20sobre%20la%20evaluaci%C3%B3n" target="_blank" rel="noopener" class="btn btn--primary nav__cta">Hablar con un asesor</a>
-  </nav>
-</header>
-
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Evaluación de perfil inversionista — IMOBU" description="Completa tu evaluación de perfil en 5 minutos: un asesor IMOBU analizará tus ingresos, ahorro y objetivos para recomendarte proyectos y gestionar tu crédito hipotecario." og={{ title: 'Evalúa tu perfil de inversionista — IMOBU', url: 'https://imobu.cl/evaluacion.html' }} cta={{ href: 'https://wa.me/56984336430?text=Hola%20IMOBU%2C%20tengo%20dudas%20sobre%20la%20evaluaci%C3%B3n', text: 'Hablar con un asesor', external: true }} script="evaluacion">
 <main id="contenido" class="wrap" style="padding-bottom: 112px">
 
   <div class="page-head">
@@ -343,51 +307,4 @@
   </div>
 
 </main>
-
-<!-- Resumen fijo en móvil mientras se completa la evaluación -->
-<div class="diag-mini" id="diag-mini" aria-hidden="true">
-  <div><span>Podrías invertir hasta</span><strong id="mini-precio">UF 0</strong></div>
-  <a href="#diag">Ver detalle ↓</a>
-</div>
-
-<!-- FOOTER -->
-<footer id="contacto" class="footer">
-  <div class="wrap footer__grid">
-    <div class="footer__col footer__brand">
-      <img src="img/logo-imobu-negativo.png" alt="IMOBU Asesoría Inmobiliaria" width="200" height="96">
-      <p>Asesoría y gestión integral para invertir en propiedades con seguridad y tranquilidad.</p>
-    </div>
-    <div class="footer__col">
-      <strong>Navegación</strong>
-      <a href="proyectos.html">Proyectos</a>
-      <a href="index.html#ciclo">Cómo invertir</a>
-      <a href="evaluacion.html">Evaluación de perfil</a>
-      <a href="broker.html">Sé broker IMOBU</a>
-      <a href="marcela/index.html">Asesora Marcela Díaz</a>
-    </div>
-    <div class="footer__col">
-      <strong>Contacto</strong>
-      <span data-cfg="sitio.direccion">Badajoz 130, Las Condes</span>
-      <a href="tel:+56984336430" data-cfg-tel>+56 9 8433 6430</a>
-      <a href="mailto:contacto@imobu.cl" data-cfg-mail>contacto@imobu.cl</a>
-      <span style="color: var(--on-dark)" data-cfg="sitio.horario">Lunes a viernes, 9:00 a 18:30 h</span>
-    </div>
-    <div class="footer__col">
-      <strong>Síguenos</strong>
-      <a href="https://www.instagram.com/imobu.cl/" target="_blank" rel="noopener" data-cfg-href="sitio.instagram">Instagram</a>
-      <a href="https://www.facebook.com/imobuasesoria/" target="_blank" rel="noopener" data-cfg-href="sitio.facebook">Facebook</a>
-      <a href="https://www.linkedin.com/company/imobu/" target="_blank" rel="noopener" data-cfg-href="sitio.linkedin">LinkedIn</a>
-    </div>
-  </div>
-  <div class="wrap footer__bottom">
-    <span>© 2026 IMOBU. Todos los derechos reservados.</span>
-    <span style="display: flex; gap: 20px"><a href="legal.html#terminos">Términos y condiciones</a><a href="legal.html#privacidad">Política de privacidad</a><a href="intranet.html" title="Acceso para el equipo IMOBU"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 4px"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Intranet</a></span>
-  </div>
-</footer>
-
-<script src="js/config.js"></script>
-<script src="/api/config"></script>
-<script src="js/imobu.js"></script>
-<script src="js/evaluacion.js"></script>
-</body>
-</html>
+</Base>

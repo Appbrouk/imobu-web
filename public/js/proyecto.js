@@ -1,12 +1,12 @@
 (function () {
   var root = document.getElementById('pdp-root');
-  var p = IMOBU.porId(new URLSearchParams(location.search).get('id'));
+  var p = IMOBU.porId(document.body.getAttribute('data-proyecto') || new URLSearchParams(location.search).get('id'));
 
   if (!p) {
     document.title = 'Proyecto no encontrado — IMOBU';
     root.innerHTML = '<div class="notfound"><h1>No encontramos este proyecto</h1>' +
       '<p>Puede que ya no esté disponible o que el enlace esté incompleto.</p>' +
-      '<a href="proyectos.html" class="btn btn--primary">Ver todos los proyectos</a></div>';
+      '<a href="' + IMOBU.base + 'proyectos.html" class="btn btn--primary">Ver todos los proyectos</a></div>';
     return;
   }
 
@@ -27,7 +27,7 @@
   var waVisita = IMOBU.wa('Hola IMOBU, quiero agendar una visita al ' + p.nombre + ' en ' + p.comuna + '.');
 
   root.innerHTML =
-    '<div class="breadcrumb" style="padding-top: 40px"><a href="index.html">Inicio</a> / <a href="proyectos.html">Proyectos</a> / ' + e(p.nombre) + '</div>' +
+    '<div class="breadcrumb" style="padding-top: 40px"><a href="' + IMOBU.base + '">Inicio</a> / <a href="' + IMOBU.base + 'proyectos.html">Proyectos</a> / ' + e(p.nombre) + '</div>' +
     '<div class="pdp">' +
       '<figure class="pdp__media">' +
         '<img src="' + IMOBU.foto(p, 1400) + '" alt="' + e(p.alt) + '">' +

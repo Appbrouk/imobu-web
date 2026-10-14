@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Proyectos para invertir — IMOBU" description="Departamentos para invertir en Santiago seleccionados por IMOBU: filtra por comuna, precio en UF, tipo de entrega y dormitorios." og={{ url: 'https://imobu.cl/proyectos.html' }} active="proyectos" script="proyectos" wa="Hola IMOBU, quiero más información de los proyectos">
+<main id="contenido">
+
+<section class="wrap">
+  <div class="page-head">
+    <div>
+      <div class="breadcrumb"><a href="index.html">Inicio</a> / Proyectos</div>
+      <div class="eyebrow" style="margin-bottom: 12px">Oportunidades de inversión</div>
+      <h1>Proyectos para <span class="accent">invertir.</span></h1>
+      <p>Departamentos de inmobiliarias de trayectoria, seleccionados por nuestro equipo. Filtra según lo que buscas y evalúa tu perfil para saber cuáles calzan contigo.</p>
+    </div>
+    <a href="evaluacion.html" class="btn btn--outline">¿Hasta cuánto puedo invertir?</a>
+  </div>
+
+  <form class="filters" id="filters" aria-label="Filtrar proyectos">
+    <label class="field">Comuna
+      <select name="comuna" id="f-comuna"><option value="">Todas las comunas</option></select>
+    </label>
+    <label class="field">Precio UF
+      <select name="precio">
+        <option value="">Cualquier precio</option>
+        <option value="0-3000">Hasta UF 3.000</option>
+        <option value="3000-5000">UF 3.000 – 5.000</option>
+        <option value="5000-99999">Sobre UF 5.000</option>
+      </select>
+    </label>
+    <label class="field">Tipo de entrega
+      <select name="entrega">
+        <option value="">Todas</option>
+        <option value="inmediata">Entrega inmediata</option>
+        <option value="futura">Entrega futura</option>
+      </select>
+    </label>
+    <label class="field">Dormitorios
+      <select name="dorm">
+        <option value="">Cualquiera</option>
+        <option value="0">Studio</option>
+        <option value="1">1 dormitorio</option>
+        <option value="2">2 dormitorios</option>
+        <option value="3">3 dormitorios</option>
+      </select>
+    </label>
+    <label class="field">Ordenar por
+      <select name="orden">
+        <option value="destacados">Destacados</option>
+        <option value="precio-asc">Menor precio</option>
+        <option value="precio-desc">Mayor precio</option>
+      </select>
+    </label>
+  </form>
+
+  <div class="results-bar">
+    <span id="results-count" role="status">Cargando proyectos…</span>
+    <button type="button" class="link-btn" id="clear-filters">Limpiar filtros</button>
+  </div>
+
+  <div class="projects" id="catalog"></div>
+  <div class="empty" id="empty-state">
+    No encontramos proyectos con esos filtros por ahora.<br>
+    <a href="evaluacion.html" style="font-weight: 700">Haz tu evaluación</a> y un asesor te mostrará alternativas que calcen contigo.
+  </div>
+  <p class="fineprint" id="nota-dividendo"></p>
+</section>
+
+<!-- CTA EVALUACIÓN -->
+<section class="section" style="padding-left: 24px; padding-right: 24px; padding-bottom: 112px">
+  <div class="cta" style="max-width: 1200px; margin: 0 auto">
+    <div style="max-width: 620px">
+      <h2>¿No sabes cuál elegir?</h2>
+      <p>Completa la evaluación de perfil y te recomendamos los proyectos que calzan con tu renta, tu ahorro y tus objetivos.</p>
+    </div>
+    <div class="actions">
+      <a href="evaluacion.html" class="btn btn--white">Evaluar mi perfil</a>
+      <a href="https://wa.me/56984336430?text=Hola%20IMOBU%2C%20quiero%20ayuda%20para%20elegir%20un%20proyecto" target="_blank" rel="noopener" class="btn btn--ghost-white">Hablar por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+</main>
+</Base>
