@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /intranet.html
+Disallow: /api/
+Sitemap: https://imobu.cl/sitemap.xml

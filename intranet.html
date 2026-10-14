@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intranet — IMOBU</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/imobu.css">
+<style>
+  body { background: var(--bg); }
+  [hidden] { display: none !important; }
+
+  /* Ingreso */
+  .login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(160deg, var(--bg), var(--pink-soft)); }
+  .login__card { width: 100%; max-width: 420px; background: var(--white); border-radius: 28px; box-shadow: var(--shadow-lg); padding: 36px 32px; display: flex; flex-direction: column; gap: 18px; }
+  .login__card img { height: 44px; width: auto; align-self: flex-start; }
+  .login__card h1 { font-size: 24px; font-weight: 800; }
+  .login__card p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .login__msg { font-size: 13px; font-weight: 600; border-radius: 12px; padding: 10px 12px; }
+  .login__msg--error { background: #FDECEC; color: #9B1C1C; }
+  .login__msg--ok { background: #E8F6EE; color: #1F6B45; }
+  .login__links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+  .login__nota { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 14px; }
+
+  /* Panel */
+  .adm-top { position: sticky; top: 0; z-index: 30; background: var(--ink); color: var(--white); }
+  .adm-top__in { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding-top: 12px; padding-bottom: 12px; }
+  .adm-top img { height: 30px; width: auto; background: #fff; border-radius: 8px; padding: 4px 8px; }
+  .adm-top h1 { font-size: 16px; font-weight: 700; margin-right: auto; }
+  .adm-user { font-size: 13px; color: var(--on-dark); display: flex; align-items: center; gap: 10px; }
+  .adm-user button { font-family: inherit; font-size: 13px; font-weight: 600; color: #fff; background: transparent; border: 1px solid var(--graphite-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .adm-estado { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--graphite-2); }
+  .adm-estado--cambios { background: #9A6B00; }
+  .adm-estado--ok { background: #1F7A4D; }
+  .adm-top .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+  .adm-modo { background: #FFF6E0; color: #6B4A00; font-size: 13px; line-height: 1.5; }
+  .adm-modo .wrap { padding-top: 10px; padding-bottom: 10px; }
+  .adm { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding-top: 32px; padding-bottom: 96px; align-items: start; }
+  .adm-nav { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 4px; }
+  .adm-nav button { font-family: inherit; text-align: left; font-size: 15px; font-weight: 600; padding: 12px 14px; border-radius: 12px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+  .adm-nav button:hover { background: var(--white); }
+  .adm-nav button[aria-selected="true"] { background: var(--white); color: var(--pink-dark); box-shadow: var(--shadow-sm); }
+  .adm-panel { background: var(--white); border-radius: 24px; box-shadow: var(--shadow-sm); padding: 32px; }
+  .adm-panel h2 { font-size: 24px; margin-bottom: 6px; }
+  .adm-panel > p { margin: 0 0 24px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .adm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .adm-hint { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+  .adm-error { font-size: 12px; font-weight: 600; color: var(--pink-dark); }
+  .field.is-bad input, .field.is-bad select { border-color: var(--pink-dark); }
+  .adm-help { background: var(--bg); border-radius: 16px; padding: 18px 20px; font-size: 14px; line-height: 1.65; color: var(--muted); margin-top: 24px; }
+  .adm-help strong { color: var(--ink); }
+  .adm-help ol { margin: 8px 0 0; padding-left: 20px; }
+  .adm-warn { background: #FFF6E0; color: #6B4A00; border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.5; margin-bottom: 20px; }
+  .tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .tabla th, .tabla td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  .tabla th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  .tabla img { width: 64px; height: 44px; object-fit: cover; border-radius: 8px; display: block; background: var(--line); }
+  .tabla .acciones { display: flex; gap: 6px; justify-content: flex-end; }
+  .mini-btn { font-family: inherit; font-size: 13px; font-weight: 600; min-height: 36px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }
+  .mini-btn:hover { border-color: var(--pink); color: var(--pink-dark); }
+  .mini-btn--peligro:hover { border-color: #B00020; color: #B00020; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--bg); }
+  .pill--ejemplo { background: #FFF6E0; color: #6B4A00; }
+  .pill--dest { background: var(--pink-soft); color: var(--pink-dark); }
+  .editor { margin-top: 24px; border: 1.5px solid var(--pink); border-radius: 20px; padding: 24px; }
+  .editor h3 { font-size: 18px; margin-bottom: 16px; }
+  .editor__foto { display: flex; gap: 14px; align-items: center; }
+  .editor__foto img { width: 120px; height: 80px; object-fit: cover; border-radius: 12px; background: var(--line); }
+  .dorms { display: flex; flex-wrap: wrap; gap: 8px; }
+  .asesor-card { border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+  .asesor-card__head { margin-bottom: 14px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 100; box-shadow: var(--shadow-lg); max-width: calc(100% - 32px); }
+  @media (max-width: 900px) {
+    .adm { grid-template-columns: 1fr; }
+    .adm-nav { position: static; flex-direction: row; overflow-x: auto; }
+    .adm-nav button { white-space: nowrap; }
+    .adm-panel { padding: 22px 16px; }
+    .tabla .col-ocultable { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INGRESO -->
+<section class="login" id="vista-login" hidden aria-labelledby="titulo-login">
+  <form class="login__card" id="form-login" novalidate>
+    <img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria" width="120" height="44">
+    <h1 id="titulo-login">Intranet</h1>
+    <p>Acceso para el equipo IMOBU. Ingresa con tu correo y tu clave.</p>
+    <div class="login__msg login__msg--error" id="login-error" role="alert" hidden></div>
+    <div class="login__msg login__msg--ok" id="login-ok" role="status" hidden></div>
+    <label class="field">Correo<input type="email" name="email" autocomplete="username" maxlength="120" required></label>
+    <label class="field">Clave<input type="password" name="clave" autocomplete="current-password" maxlength="128" required></label>
+    <button type="submit" class="btn btn--primary" id="btn-login">Ingresar</button>
+    <div class="login__links">
+      <button type="button" class="link-btn" id="btn-olvide">¿Olvidaste tu clave?</button>
+      <a href="index.html" class="link-btn">Volver al sitio</a>
+    </div>
+    <p class="login__nota"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E6166" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg><span>Conexión cifrada. Tras varios intentos fallidos el acceso se bloquea temporalmente, y la sesión se cierra sola después de 30 minutos sin actividad.</span></p>
+  </form>
+</section>
+
+<!-- CREAR / CAMBIAR CLAVE (invitación o recuperación) -->
+<section class="login" id="vista-clave" hidden aria-labelledby="titulo-clave">
+  <form class="login__card" id="form-clave" novalidate>
+    <img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria" width="120" height="44">
+    <h1 id="titulo-clave">Crea tu clave</h1>
+    <p>Mínimo 12 caracteres, con letras y números. No reutilices una clave de otro servicio.</p>
+    <div class="login__msg login__msg--error" id="clave-error" role="alert" hidden></div>
+    <label class="field">Nueva clave<input type="password" name="clave" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+    <label class="field">Repite la clave<input type="password" name="clave2" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+    <button type="submit" class="btn btn--primary">Guardar clave</button>
+  </form>
+</section>
+
+<!-- PANEL -->
+<div id="vista-panel" hidden>
+  <header class="adm-top">
+    <div class="wrap adm-top__in">
+      <img src="img/logo-imobu.png" alt="IMOBU" width="82" height="30">
+      <h1>Intranet · Parámetros del sitio</h1>
+      <span class="adm-estado" id="estado" role="status">Sin cambios</span>
+      <button type="button" class="btn btn--outline btn--sm" id="btn-preview" style="color: #fff; border-color: #fff">Vista previa</button>
+      <button type="button" class="btn btn--primary btn--sm" id="btn-publicar" hidden>Guardar y publicar</button>
+      <button type="button" class="btn btn--primary btn--sm" id="btn-descargar">Descargar config.js</button>
+      <span class="adm-user" id="adm-user" hidden><span id="adm-email"></span><button type="button" id="btn-salir">Cerrar sesión</button></span>
+    </div>
+  </header>
+  <div class="adm-modo" id="aviso-local" hidden>
+    <div class="wrap"><strong>Modo local:</strong> la intranet aún no está conectada a la base de datos, así que los cambios no se publican solos. Edita, revisa la vista previa y descarga <code>config.js</code> para subirlo al sitio. Para activar el ingreso con clave y la publicación directa, ver <code>SEGURIDAD.md</code>.</div>
+  </div>
+  <main class="wrap adm">
+    <nav class="adm-nav" role="tablist" aria-label="Secciones" id="tabs"></nav>
+    <div id="paneles"></div>
+  </main>
+</div>
+
+<input type="file" id="file-input" accept=".js,.json,text/javascript,application/json" hidden>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/conexion.js"></script>
+<script src="js/intranet.js"></script>
+</body>
+</html>

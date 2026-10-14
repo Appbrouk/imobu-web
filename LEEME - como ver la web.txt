@@ -1,0 +1,33 @@
+IMOBU ASESORÍA INMOBILIARIA — SITIO WEB (versión de revisión)
+================================================================
+
+CÓMO VERLA
+1. Descomprime el zip (doble clic sobre el archivo).
+2. Entra a la carpeta IMOBU-web y haz doble clic en  index.html
+   Se abre en tu navegador (recomendado: Chrome).
+3. Necesitas internet: las fotos y la tipografía se cargan desde la web.
+   Es más cómodo revisarla en computador; en el celular los zip con páginas no abren bien.
+
+QUÉ REVISAR
+- index.html ............ Inicio
+- proyectos.html ........ Catálogo con filtros (desde ahí se abre la ficha de cada proyecto y su simulador de dividendo)
+- evaluacion.html ....... Evaluación crediticia del cliente en 5 pasos
+- broker.html ........... Programa "Sé broker IMOBU"
+- marcela/index.html .... Landing de la asesora Marcela Díaz
+- legal.html ............ Privacidad y términos
+- Intranet .............. Botón "Intranet" al final de cualquier página (parámetros del sitio)
+
+IMPORTANTE: ES UNA VERSIÓN DE REVISIÓN
+- Los formularios todavía NO envían datos: muestran la confirmación, pero no le llega nada a nadie.
+  Pruébenlos con datos inventados.
+- 6 de los 9 proyectos son de ejemplo (aparecen como "Inmobiliaria aliada"). Los testimonios también son de ejemplo.
+- Los textos legales son un borrador: falta completar razón social, RUT y plazos, y revisarlos con un abogado.
+- La intranet en esta versión entra sin clave y los cambios solo se ven en tu propio computador
+  (no cambian la web de nadie más). La clave se activa cuando el sitio se publique conectado.
+
+CÓMO DAR COMENTARIOS
+Indica página + sección + qué cambiarías. Una captura de pantalla ayuda mucho.
+
+PARA QUIEN LA VAYA A PUBLICAR (técnico)
+Las carpetas api/ y supabase/ y los archivos vercel.json, .vercelignore y SEGURIDAD.md
+sirven para publicarla en Vercel con formularios seguros e intranet con clave. Instrucciones en SEGURIDAD.md.

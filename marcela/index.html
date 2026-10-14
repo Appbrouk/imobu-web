@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marcela Díaz — Asesora de inversiones inmobiliarias | IMOBU</title>
+<meta name="description" content="Marcela Díaz, asesora de inversiones inmobiliarias en IMOBU. Agenda una pre-evaluación gratuita de 30 minutos, evalúa tu perfil y conoce proyectos seleccionados en Santiago.">
+<meta name="theme-color" content="#FCEEF1">
+<meta property="og:title" content="Marcela Díaz · Asesora de inversiones IMOBU">
+<meta property="og:description" content="Te acompaño estratégicamente en cada etapa de tu inversión, con el respaldo de IMOBU.">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://imobu.cl/marcela/">
+<meta property="og:image" content="https://mdiaz.cl/assets/marce-hero.jpeg">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/imobu.css">
+<style>
+  /* Variante "asesora": más clara y femenina, con la base de IMOBU (rosado, Montserrat, formas redondeadas) */
+  :root {
+    --m-bg: #FFFBF8;
+    --m-cream: #FBF4EE;
+    --m-blush: #FCEEF1;
+    --m-rose: #F6D7DE;
+    --m-rose-deep: #A3586A;
+    --m-gold: #C8A868;
+    --m-ink: #3B3835;
+    --m-muted: #6E6862;
+    --m-line: #EFE4DC;
+  }
+  body { background: var(--m-bg); color: var(--m-ink); }
+  .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; }
+  .m-eyebrow { display: flex; align-items: center; gap: 14px; font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--m-rose-deep); font-weight: 600; }
+  .m-eyebrow::before { content: ""; width: 40px; height: 1px; background: var(--m-gold); }
+  .m-eyebrow--center { justify-content: center; }
+  .m-eyebrow--center::after { content: ""; width: 40px; height: 1px; background: var(--m-gold); }
+  .m-h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.25; }
+  .m-h2 strong { font-weight: 600; }
+  .m-lead { font-size: 17px; line-height: 1.7; color: var(--m-muted); margin: 0; }
+  .btn--soft { background: var(--white); color: var(--m-ink); border: 1.5px solid var(--m-rose); }
+  .btn--soft:hover { border-color: var(--pink); color: var(--pink-dark); background: var(--white); }
+
+  /* Barra IMOBU */
+  .m-topbar { background: var(--m-blush); color: var(--m-ink); font-size: 13px; }
+  .m-topbar .wrap { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; padding-top: 9px; padding-bottom: 9px; text-align: center; }
+  .m-topbar a { color: var(--pink-dark); font-weight: 700; text-decoration: none; }
+
+  /* Nav */
+  .site-header { background: rgba(255, 251, 248, 0.92); backdrop-filter: blur(10px); border-bottom-color: var(--m-line); }
+  .m-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--m-ink); }
+  .m-mono { width: 44px; height: 44px; border-radius: 999px; background: var(--m-blush); border: 1px solid var(--m-rose); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 20px; font-weight: 600; color: var(--m-rose-deep); }
+  .m-brand__name { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 600; font-size: 24px; line-height: 1; }
+  .m-brand__role { display: block; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--m-muted); margin-top: 4px; }
+  .nav { gap: 16px 28px; }
+  .nav__links { gap: 8px 22px; }
+  .nav__links a { color: var(--m-ink); white-space: nowrap; }
+  .m-brand__role { white-space: nowrap; }
+  .m-respaldo { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--m-muted); text-decoration: none; }
+  .m-respaldo img { height: 26px; width: auto; }
+
+  /* Hero */
+  .m-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 56px; align-items: center; padding-top: 64px; }
+  .m-hero h1 { font-size: clamp(32px, 4.6vw, 52px); font-weight: 300; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.12; margin: 20px 0; }
+  .m-hero h1 strong { font-weight: 600; color: var(--pink); }
+  .m-hero__soy { margin-top: 22px; font-size: 14px; color: var(--m-muted); }
+  .m-hero__soy .serif { font-size: 20px; color: var(--m-rose-deep); }
+  .m-hero__visual { position: relative; min-height: 560px; display: flex; justify-content: center; }
+  .m-hero__blob { position: absolute; inset: 40px 0 0 30px; border-radius: 48% 52% 44% 56% / 52% 46% 54% 48%; background: linear-gradient(160deg, var(--m-blush), var(--m-rose)); }
+  .m-arch { position: relative; width: min(400px, 88%); height: 520px; border-radius: 240px 240px 28px 28px; overflow: hidden; margin: 0; background: #fff; box-shadow: 0 30px 60px rgba(163, 88, 106, 0.18); border: 6px solid #fff; }
+  .m-arch img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
+  .m-float { position: absolute; background: #fff; border-radius: 20px; padding: 14px 18px; box-shadow: var(--shadow-lg); font-size: 13px; line-height: 1.4; }
+  .m-float strong { display: block; font-size: 15px; }
+  .m-float--a { left: 0; bottom: 70px; }
+  .m-float--b { right: 0; top: 70px; display: flex; align-items: center; gap: 10px; }
+  .m-float--b img { height: 22px; width: auto; }
+  .m-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--pink); display: inline-block; margin-right: 6px; }
+
+  /* Franja */
+  .m-strip { background: var(--m-blush); margin-top: 80px; }
+  .m-strip .wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-top: 28px; padding-bottom: 28px; }
+  .m-strip__item { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; }
+  .m-strip__item span { width: 40px; height: 40px; border-radius: 999px; background: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+
+  /* Tarjetas suaves */
+  .m-section { padding-top: 104px; }
+  .m-head { text-align: center; max-width: 660px; margin: 0 auto 44px; display: flex; flex-direction: column; gap: 14px; }
+  .m-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .m-card { background: #fff; border: 1px solid var(--m-line); border-radius: 28px; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+  .m-card__tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .m-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; background: var(--m-blush); color: var(--m-rose-deep); }
+  .m-tag--gold { background: #FBF3E4; color: #8C6F38; }
+  .m-card h3 { font-size: 22px; font-weight: 600; }
+  .m-card p { margin: 0; color: var(--m-muted); line-height: 1.6; font-size: 15px; flex: 1; }
+  .m-res { display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: center; }
+  .m-res img { width: 120px; height: 150px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-sm); background: var(--m-cream); }
+
+  /* Sobre mí */
+  .m-about { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 56px; align-items: center; }
+  .m-about__photo { margin: 0; border-radius: 28px; overflow: hidden; height: 520px; background: var(--m-cream); position: relative; }
+  .m-about__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .m-about__photo::after { content: ""; position: absolute; inset: 14px; border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 20px; pointer-events: none; }
+  .m-firma { font-size: 34px; color: var(--m-rose-deep); }
+  .m-social { display: flex; flex-wrap: wrap; gap: 10px; }
+  .m-social a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--m-rose); color: var(--m-ink); text-decoration: none; font-size: 13px; font-weight: 600; background: #fff; }
+  .m-social a:hover { border-color: var(--pink); color: var(--pink-dark); }
+  .m-respaldo-box { display: flex; gap: 14px; align-items: center; background: var(--m-cream); border-radius: 20px; padding: 16px 18px; font-size: 14px; line-height: 1.55; color: var(--m-muted); }
+  .m-respaldo-box img { height: 32px; width: auto; flex: none; }
+
+  /* Registro */
+  .m-reg { background: linear-gradient(180deg, var(--m-blush), var(--m-bg)); border-radius: 36px; padding: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center; }
+  .m-reg .eval__form { box-shadow: 0 20px 50px rgba(163, 88, 106, 0.14); }
+
+  /* Final */
+  .m-final { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: center; background: #fff; border: 1px solid var(--m-line); border-radius: 36px; padding: 48px; }
+  .m-final img { width: 100%; height: 320px; object-fit: cover; border-radius: 28px; display: block; }
+
+  /* Footer suave */
+  .m-footer { margin-top: 104px; background: var(--m-cream); border-top: 1px solid var(--m-line); color: var(--m-ink); }
+  .m-footer .wrap { padding-top: 48px; padding-bottom: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  .m-footer .m-brand__role { white-space: normal; line-height: 1.5; }
+  .m-footer h4 { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--m-muted); margin: 0 0 12px; font-weight: 600; }
+  .m-footer .wrap > div > a:not(.m-brand), .m-footer .wrap > div > span { display: block; color: var(--m-ink); text-decoration: none; font-size: 14px; line-height: 1.9; }
+  .m-footer a:hover { color: var(--pink-dark); }
+  .m-footer__bottom { border-top: 1px solid var(--m-line); }
+  .m-footer__bottom .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 18px; padding-bottom: 24px; font-size: 12px; color: var(--m-muted); }
+  .m-footer__bottom a { display: inline; font-size: 12px; color: var(--m-muted); margin-left: 16px; }
+
+  @media (max-width: 1280px) {
+    .m-respaldo span { display: none; }
+  }
+  @media (max-width: 1080px) {
+    .m-respaldo { display: none; }
+  }
+  @media (max-width: 900px) {
+    .m-final { grid-template-columns: 1fr; padding: 32px 24px; }
+  }
+  @media (max-width: 640px) {
+    .m-brand { min-width: 0; flex: 1; }
+    .m-brand__role { white-space: normal; letter-spacing: 0.12em; line-height: 1.4; }
+    .m-hero { padding-top: 32px; gap: 32px; grid-template-columns: 1fr; }
+    .m-hero__visual { min-height: 460px; }
+    .m-arch { height: 430px; }
+    .m-float--a { left: 4px; bottom: 24px; }
+    .m-float--b { right: 4px; top: 24px; }
+    .m-reg { padding: 32px 18px; border-radius: 28px; grid-template-columns: 1fr; }
+    .m-about { grid-template-columns: 1fr; }
+    .m-about__photo { height: 380px; }
+    .m-res { grid-template-columns: 90px 1fr; }
+    .m-res img { width: 90px; height: 116px; }
+    .m-section { padding-top: 80px; }
+  }
+</style>
+</head>
+<body data-asesor="marcela-diaz">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<div class="m-topbar">
+  <div class="wrap">
+    <span><span class="m-dot" aria-hidden="true"></span><span data-a="nombre">Marcela Díaz</span> es asesora de IMOBU Asesoría Inmobiliaria.</span>
+    <a href="../index.html">Conoce IMOBU →</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <nav class="nav wrap" aria-label="Principal">
+    <a href="#inicio" class="m-brand" aria-label="Marcela Díaz, inicio">
+      <span class="m-mono" aria-hidden="true">MD</span>
+      <span><span class="m-brand__name" data-a="nombre">Marcela Díaz</span><span class="m-brand__role">Asesora de inversiones · IMOBU</span></span>
+    </a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B3835" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="nav__links" id="nav-links">
+      <a href="#servicios">Servicios</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#sobre-mi">Sobre mí</a>
+      <a href="#registro">Contacto</a>
+    </div>
+    <a href="../index.html" class="m-respaldo" aria-label="Respaldo de IMOBU Asesoría Inmobiliaria"><span>Con el respaldo de</span><img src="../img/logo-imobu.png" alt="IMOBU" width="71" height="26"></a>
+    <a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero agendar una asesoría." target="_blank" rel="noopener" class="btn btn--primary nav__cta">Agendar</a>
+  </nav>
+</header>
+
+<main id="contenido">
+
+<!-- HERO -->
+<section id="inicio" class="wrap m-hero">
+  <div>
+    <div class="m-eyebrow">Inversiones inmobiliarias</div>
+    <h1>Invierte en las <strong>mejores propiedades</strong> de Santiago</h1>
+    <p class="m-lead">Te acompaño estratégicamente en cada etapa, con una asesoría personalizada y transparente. ¿Estás preparada o preparado para obtener beneficios exclusivos?</p>
+    <div class="actions" style="margin-top: 28px">
+      <a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero agendar mi asesoría gratuita de 30 minutos." target="_blank" rel="noopener" class="btn btn--primary">Agendar asesoría gratis</a>
+      <a href="../evaluacion.html" class="btn btn--soft" data-eval>Evaluar mi perfil</a>
+    </div>
+    <p class="m-hero__soy">Soy <span class="serif" data-a="nombre">Marcela Díaz</span>, asesora de inversiones en IMOBU.</p>
+  </div>
+  <div class="m-hero__visual">
+    <div class="m-hero__blob" aria-hidden="true"></div>
+    <figure class="m-arch"><img src="https://mdiaz.cl/assets/marce-hero.jpeg" data-a-img="foto" alt="Retrato de Marcela Díaz, asesora de inversiones inmobiliarias"></figure>
+    <div class="m-float m-float--a"><span class="m-tag">30 min · Gratis</span><strong style="margin-top: 8px">Pre-evaluación de tu perfil</strong>Sin costo ni compromiso</div>
+    <div class="m-float m-float--b"><img src="../img/logo-imobu.png" alt="IMOBU" width="60" height="22"><span>Respaldo<br><strong data-cfg="cifras.experiencia">+8 años</strong></span></div>
+  </div>
+</section>
+
+<!-- FRANJA -->
+<div class="m-strip">
+  <div class="wrap">
+    <div class="m-strip__item"><span aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3586A" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-4.5-7-11a4 4 0 017-2.6A4 4 0 0119 10c0 6.5-7 11-7 11z"/></svg></span>Asesoría cercana y personalizada</div>
+    <div class="m-strip__item"><span aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3586A" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg></span>Gestión de tu crédito hipotecario</div>
+    <div class="m-strip__item"><span aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3586A" stroke-width="2" stroke-linecap="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></svg></span>Proyectos seleccionados por IMOBU</div>
+  </div>
+</div>
+
+<!-- SERVICIOS -->
+<section id="servicios" class="wrap m-section">
+  <div class="m-head">
+    <div class="m-eyebrow m-eyebrow--center">Reservas y servicios</div>
+    <h2 class="m-h2">Agenda con <strong>Marcela</strong></h2>
+    <p class="m-lead">Asesoría personalizada y transparente, en cada etapa de tu inversión.</p>
+  </div>
+  <div class="m-cards">
+    <article class="m-card">
+      <div class="m-card__tags"><span class="m-tag">30 min</span><span class="m-tag m-tag--gold">Gratis</span></div>
+      <h3>Pre-evaluación de inversión</h3>
+      <p>Evaluamos tu perfil y tu capacidad de inversión, sin costo. Puedes adelantar completando la evaluación online y verás tu pre-diagnóstico al instante.</p>
+      <div class="actions"><a href="../evaluacion.html" class="btn btn--primary btn--sm" data-eval>Evaluar mi perfil</a><a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero reservar una pre-evaluación de inversión." target="_blank" rel="noopener" class="btn btn--soft btn--sm">Reservar por WhatsApp</a></div>
+    </article>
+    <article class="m-card">
+      <div class="m-card__tags"><span class="m-tag">30 min</span><span class="m-tag m-tag--gold">Gratis</span></div>
+      <h3>Gestión de créditos</h3>
+      <p>Revisamos tu situación crediticia y las mejores opciones de financiamiento, con el apoyo de la mesa hipotecaria de IMOBU.</p>
+      <div class="actions"><a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero reservar una pre-evaluación de mi crédito." target="_blank" rel="noopener" class="btn btn--primary btn--sm">Reservar ahora</a></div>
+    </article>
+  </div>
+</section>
+
+<!-- RECURSOS -->
+<section id="recursos" class="wrap m-section">
+  <div class="m-head">
+    <div class="m-eyebrow m-eyebrow--center">Recursos</div>
+    <h2 class="m-h2">eBooks y <strong>guías</strong></h2>
+    <p class="m-lead">Déjame tus datos y te envío el material directo a tu correo.</p>
+  </div>
+  <div class="m-cards">
+    <article class="m-card m-res">
+      <img src="https://mdiaz.cl/assets/1.webp" alt="Portada del eBook Aprende a invertir en departamentos paso a paso" loading="lazy">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span class="m-tag" style="align-self: flex-start">eBook</span>
+        <h3>Aprende a invertir en departamentos paso a paso</h3>
+        <p>Todo lo que necesitas para dar tu primer paso como inversionista.</p>
+        <a href="#registro" class="btn btn--soft btn--sm" data-recurso="Recibir el eBook" style="align-self: flex-start">Obtener ahora</a>
+      </div>
+    </article>
+    <article class="m-card m-res">
+      <img src="https://mdiaz.cl/assets/2.webp" alt="Portada de la Guía práctica para gestionar tu crédito" loading="lazy">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span class="m-tag m-tag--gold" style="align-self: flex-start">Guía</span>
+        <h3>Guía práctica para gestionar tu crédito</h3>
+        <p>Ordena tus finanzas y prepara tu crédito hipotecario.</p>
+        <a href="#registro" class="btn btn--soft btn--sm" data-recurso="Recibir la guía de crédito" style="align-self: flex-start">Obtener ahora</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- PROYECTOS -->
+<section id="proyectos" class="wrap m-section">
+  <div class="m-head">
+    <div class="m-eyebrow m-eyebrow--center">Oportunidades de inversión</div>
+    <h2 class="m-h2">Proyectos <strong>seleccionados</strong></h2>
+    <p class="m-lead">Proyectos de renta en Santiago, de inmobiliarias de trayectoria aliadas a IMOBU.</p>
+  </div>
+  <div class="projects" id="m-proyectos"></div>
+  <p class="fineprint" id="nota-dividendo"></p>
+  <div style="text-align: center; margin-top: 28px"><a href="../proyectos.html" class="btn btn--soft" id="m-ver-todos">Ver todos los proyectos</a></div>
+</section>
+
+<!-- SOBRE MÍ -->
+<section id="sobre-mi" class="wrap m-section">
+  <div class="m-about">
+    <figure class="m-about__photo"><img src="https://mdiaz.cl/assets/marce-pc.jpeg" data-a-img="fotoTrabajo" alt="Marcela Díaz trabajando en su computador" loading="lazy"></figure>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <div class="m-eyebrow">Sobre mí</div>
+      <h2 class="m-h2">Asesoría experta en <strong>inversiones inmobiliarias</strong></h2>
+      <p class="m-lead">Soy <span data-a="nombre">Marcela Díaz</span>, asesora en inversiones inmobiliarias. Mi misión es guiarte hacia una inversión exitosa con una asesoría personalizada y transparente.</p>
+      <p class="m-lead">No solo te muestro propiedades: te acompaño estratégicamente, desde la evaluación de tu perfil hasta la entrega de tu departamento.</p>
+      <div class="m-respaldo-box"><img src="../img/logo-imobu.png" alt="IMOBU" width="88" height="32"><span>Trabajo con el respaldo de IMOBU: gestión hipotecaria, proyectos de inmobiliarias de trayectoria y un equipo que te acompaña en cada etapa.</span></div>
+      <div class="m-firma serif" aria-hidden="true">Marcela</div>
+      <div class="m-social">
+        <a href="https://www.instagram.com/marceladiazinversiones/" data-a-href="instagram" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@marceladiazinversiones" data-a-href="tiktok" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://www.linkedin.com/in/marcela-diaz-carvajal-325b1a1b1/" data-a-href="linkedin" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://www.facebook.com/profile.php?id=100094086452130" data-a-href="facebook" target="_blank" rel="noopener">Facebook</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTRO -->
+<section id="registro" class="wrap m-section">
+  <div class="m-reg">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div class="m-eyebrow">Registro</div>
+      <h2 class="m-h2">Hablemos de tu <strong>próxima inversión</strong></h2>
+      <p class="m-lead">Déjame tus datos y te contacto personalmente. También puedes pedir el eBook o la guía de crédito.</p>
+      <ul class="eval__list">
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Respuesta personal de Marcela</li>
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Sin costo ni compromiso</li>
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Tus datos protegidos</li>
+      </ul>
+    </div>
+    <div class="eval__form">
+      <form id="m-form" data-seguro novalidate style="display: contents">
+        <label class="field">Nombre<input type="text" name="nombre" autocomplete="name" placeholder="Tu nombre" required></label>
+        <label class="field">Teléfono<input type="tel" name="telefono" autocomplete="tel" placeholder="+56 9" required></label>
+        <label class="field full">Correo electrónico<input type="email" name="email" autocomplete="email" placeholder="nombre@correo.cl" required></label>
+        <label class="field full">¿En qué te puedo ayudar?
+          <select name="interes" required>
+            <option value="">Selecciona una opción</option>
+            <option>Asesoría para invertir</option>
+            <option>Gestión de mi crédito</option>
+            <option>Recibir el eBook</option>
+            <option>Recibir la guía de crédito</option>
+          </select>
+        </label>
+        <label class="check full"><input type="checkbox" name="acepto" required><span>Acepto la <a href="../legal.html#privacidad" target="_blank">política de privacidad</a> y recibir comunicaciones de Marcela Díaz e IMOBU.</span></label>
+        <p class="form-error full" id="m-error" role="alert" hidden>Revisa los campos marcados.</p>
+        <button type="submit" class="btn btn--primary full">Quiero que me contacten</button>
+      </form>
+      <div class="success full" id="m-ok" role="status">
+        <div class="icon-circle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C40C4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h3 id="m-ok-title">¡Gracias!</h3>
+        <p>Recibí tus datos. Te contactaré muy pronto.</p>
+        <a class="btn btn--primary btn--sm" href="../evaluacion.html" data-eval>Mientras tanto, evalúa tu perfil</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="wrap m-section">
+  <div class="m-final">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div class="m-eyebrow">¿Lista o listo para invertir?</div>
+      <h2 class="m-h2">Permíteme <strong>asesorarte</strong></h2>
+      <p class="m-lead">Agenda una conversación de 30 minutos y revisemos juntos tus alternativas.</p>
+      <div class="actions"><a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero agendar una asesoría." target="_blank" rel="noopener" class="btn btn--primary">Agendar</a><a href="#registro" class="btn btn--soft">Registrarme</a></div>
+    </div>
+    <img src="https://mdiaz.cl/assets/marce-llamada.jpeg" data-a-img="fotoLlamada" alt="Marcela Díaz atendiendo una llamada" loading="lazy">
+  </div>
+</section>
+
+</main>
+
+<footer class="m-footer">
+  <div class="wrap">
+    <div>
+      <a href="#inicio" class="m-brand" style="margin-bottom: 14px"><span class="m-mono" aria-hidden="true">MD</span><span><span class="m-brand__name" data-a="nombre">Marcela Díaz</span><span class="m-brand__role">Asesora de inversiones · IMOBU</span></span></a>
+      <span style="color: var(--m-muted); line-height: 1.6">Asesoría personalizada para invertir en propiedades con seguridad y tranquilidad.</span>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <a href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero más información." target="_blank" rel="noopener">WhatsApp <span style="display: inline" data-a="telefono">+56 9 5149 7482</span></a>
+      <span data-cfg="sitio.direccion">Badajoz 130, Las Condes</span>
+      <a href="mailto:contacto@imobu.cl" data-cfg-mail>contacto@imobu.cl</a>
+    </div>
+    <div>
+      <h4>Redes</h4>
+      <a href="https://www.instagram.com/marceladiazinversiones/" data-a-href="instagram" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@marceladiazinversiones" data-a-href="tiktok" target="_blank" rel="noopener">TikTok</a>
+      <a href="https://www.linkedin.com/in/marcela-diaz-carvajal-325b1a1b1/" data-a-href="linkedin" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div>
+      <h4>Parte de</h4>
+      <a href="../index.html"><img src="../img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria" width="110" height="40" style="height: 40px; width: auto"></a>
+      <a href="../proyectos.html">Proyectos IMOBU</a>
+      <a href="../broker.html">Sé broker IMOBU</a>
+    </div>
+  </div>
+  <div class="m-footer__bottom">
+    <div class="wrap">
+      <span style="display: inline">© 2026 Marcela Díaz · IMOBU Asesoría Inmobiliaria</span>
+      <span style="display: inline"><a href="../legal.html#terminos">Términos</a><a href="../legal.html#privacidad">Privacidad</a><a href="../intranet.html" title="Acceso para el equipo IMOBU"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 4px"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Intranet</a></span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/56951497482" data-wa-propio data-a-wa="Hola Marcela, quiero más información." target="_blank" rel="noopener" aria-label="Escríbele a Marcela por WhatsApp">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.8 12 12 0 004.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg>
+</a>
+
+<script src="../js/config.js"></script>
+<script src="/api/config"></script>
+<script src="../js/imobu.js"></script>
+<script src="../js/marcela.js"></script>
+</body>
+</html>

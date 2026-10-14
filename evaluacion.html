@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluación de perfil inversionista — IMOBU</title>
+<meta name="description" content="Completa tu evaluación de perfil en 5 minutos: un asesor IMOBU analizará tus ingresos, ahorro y objetivos para recomendarte proyectos y gestionar tu crédito hipotecario.">
+<meta name="theme-color" content="#DC0E54">
+<meta property="og:title" content="Evalúa tu perfil de inversionista — IMOBU">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://imobu.cl/evaluacion.html">
+<meta property="og:image" content="https://imobu.cl/img/logo-imobu.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/imobu.css">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<!-- NAV -->
+<header class="site-header">
+  <nav class="nav wrap" aria-label="Principal">
+    <a href="index.html" class="nav__logo"><img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria — volver al inicio" width="120" height="44"></a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2E31" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="nav__links" id="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="proyectos.html">Proyectos</a>
+      <a href="index.html#ciclo">Cómo invertir</a>
+      <a href="index.html#nosotros">Nosotros</a>
+      <a href="broker.html" class="nav__broker">Sé broker</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <a href="https://wa.me/56984336430?text=Hola%20IMOBU%2C%20tengo%20dudas%20sobre%20la%20evaluaci%C3%B3n" target="_blank" rel="noopener" class="btn btn--primary nav__cta">Hablar con un asesor</a>
+  </nav>
+</header>
+
+<main id="contenido" class="wrap" style="padding-bottom: 112px">
+
+  <div class="page-head">
+    <div>
+      <div class="breadcrumb"><a href="index.html">Inicio</a> / Evaluación de perfil</div>
+      <div class="eyebrow" style="margin-bottom: 12px">Evaluación de perfil inversionista</div>
+      <h1>Descubre cuánto <span class="accent">puedes invertir.</span></h1>
+      <p>Completa estos 5 pasos (toma unos 5 minutos). Con tus datos, un asesor IMOBU analizará tu perfil con los mismos criterios que usan los bancos y te contactará con alternativas que calcen contigo.</p>
+      <div class="trust">
+        <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Sin costo ni compromiso</span>
+        <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>No pedimos claves ni documentos</span>
+        <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC0E54" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Pre-diagnóstico al instante</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eval-layout">
+    <div class="wizard" id="wizard">
+      <ol class="progress" id="progress" aria-label="Progreso de la evaluación">
+        <li class="is-current">Tus datos</li>
+        <li>Trabajo e ingresos</li>
+        <li>Deudas y ahorro</li>
+        <li>Complemento</li>
+        <li>Tu objetivo</li>
+      </ol>
+
+      <!-- TODO: enviar el objeto "datos" (ver script) al CRM, correo o planilla de IMOBU. Hoy solo valida y muestra la confirmación. -->
+      <form id="eval-form" data-seguro novalidate>
+
+        <!-- PASO 1 -->
+        <fieldset class="step" data-step="1">
+          <legend class="step__title" tabindex="-1">Cuéntanos sobre ti</legend>
+          <p class="step__hint">Usaremos estos datos para contactarte y para conocer tu situación personal.</p>
+          <div class="form-grid">
+            <label class="field">Nombre<input type="text" name="nombre" autocomplete="given-name" placeholder="Tu nombre" required></label>
+            <label class="field">Apellido<input type="text" name="apellido" autocomplete="family-name" placeholder="Tu apellido" required></label>
+            <label class="field">Correo electrónico<input type="email" name="email" autocomplete="email" placeholder="nombre@correo.cl" required></label>
+            <label class="field">Teléfono<input type="tel" name="telefono" autocomplete="tel" placeholder="+56 9" required></label>
+            <label class="field">Edad<input type="number" name="edad" min="18" max="85" inputmode="numeric" placeholder="Ej: 32" required></label>
+            <label class="field">Comuna donde vives<input type="text" name="comuna_residencia" autocomplete="address-level2" placeholder="Ej: Las Condes" required></label>
+            <fieldset class="choice-group full" data-required>
+              <legend>Estado civil</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="estado_civil" value="Soltero/a"><span>Soltero/a</span></label>
+                <label class="choice"><input type="radio" name="estado_civil" value="Casado/a"><span>Casado/a</span></label>
+                <label class="choice"><input type="radio" name="estado_civil" value="Conviviente civil"><span>Conviviente civil</span></label>
+                <label class="choice"><input type="radio" name="estado_civil" value="Divorciado/a o viudo/a"><span>Divorciado/a o viudo/a</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full" data-required>
+              <legend>Nacionalidad y residencia</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="residencia" value="Chilena"><span>Chilena</span></label>
+                <label class="choice"><input type="radio" name="residencia" value="Extranjera con residencia definitiva"><span>Extranjera con residencia definitiva</span></label>
+                <label class="choice"><input type="radio" name="residencia" value="Extranjera con residencia temporal"><span>Extranjera con residencia temporal</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </fieldset>
+
+        <!-- PASO 2 -->
+        <fieldset class="step" data-step="2" hidden>
+          <legend class="step__title" tabindex="-1">Trabajo e ingresos</legend>
+          <p class="step__hint">Los bancos evalúan tu renta líquida (lo que recibes después de descuentos), tu tipo de contrato y tu antigüedad laboral.</p>
+          <div class="form-grid">
+            <fieldset class="choice-group full" data-required>
+              <legend>Situación laboral</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="situacion" value="Dependiente con contrato indefinido"><span>Contrato indefinido</span></label>
+                <label class="choice"><input type="radio" name="situacion" value="Dependiente con contrato a plazo fijo"><span>Contrato a plazo fijo</span></label>
+                <label class="choice"><input type="radio" name="situacion" value="Independiente con boletas de honorarios"><span>Independiente (boletas)</span></label>
+                <label class="choice"><input type="radio" name="situacion" value="Empresario/a o socio/a"><span>Empresario/a o socio/a</span></label>
+                <label class="choice"><input type="radio" name="situacion" value="Jubilado/a o pensionado/a"><span>Jubilado/a o pensionado/a</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full" data-required>
+              <legend>Antigüedad laboral (o desde tu inicio de actividades)</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="antiguedad" value="Menos de 1 año"><span>Menos de 1 año</span></label>
+                <label class="choice"><input type="radio" name="antiguedad" value="1 a 2 años"><span>1 a 2 años</span></label>
+                <label class="choice"><input type="radio" name="antiguedad" value="2 a 5 años"><span>2 a 5 años</span></label>
+                <label class="choice"><input type="radio" name="antiguedad" value="Más de 5 años"><span>Más de 5 años</span></label>
+              </div>
+            </fieldset>
+            <label class="field">Renta líquida mensual<input type="text" name="renta" inputmode="numeric" data-money placeholder="$ 0" required></label>
+            <label class="field"><span>Otros ingresos demostrables <span class="field__opt">(opcional)</span></span><input type="text" name="otros_ingresos" inputmode="numeric" data-money placeholder="Arriendos, pensiones, etc."></label>
+          </div>
+        </fieldset>
+
+        <!-- PASO 3 -->
+        <fieldset class="step" data-step="3" hidden>
+          <legend class="step__title" tabindex="-1">Deudas y ahorro</legend>
+          <p class="step__hint">Indica cuánto pagas al mes en cada tipo de deuda. Si no tienes, déjalo en blanco. Esto define tu carga financiera.</p>
+          <div class="form-grid">
+            <label class="field">Créditos de consumo o automotriz<input type="text" name="deuda_consumo" inputmode="numeric" data-money placeholder="$ 0 al mes"></label>
+            <label class="field">Tarjetas y líneas de crédito<input type="text" name="deuda_tarjetas" inputmode="numeric" data-money placeholder="$ 0 al mes"></label>
+            <label class="field">Dividendo hipotecario actual<input type="text" name="deuda_hipotecario" inputmode="numeric" data-money placeholder="$ 0 al mes"></label>
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Tienes propiedades a tu nombre?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="propiedades" value="No"><span>No</span></label>
+                <label class="choice"><input type="radio" name="propiedades" value="Sí, una"><span>Sí, una</span></label>
+                <label class="choice"><input type="radio" name="propiedades" value="Sí, dos o más"><span>Sí, dos o más</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Registras morosidades o deudas impagas (DICOM)?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="dicom" value="No registro morosidades"><span>No</span></label>
+                <label class="choice"><input type="radio" name="dicom" value="Sí, pero ya están regularizadas"><span>Sí, ya regularizadas</span></label>
+                <label class="choice"><input type="radio" name="dicom" value="Sí, tengo morosidades vigentes"><span>Sí, vigentes</span></label>
+                <label class="choice"><input type="radio" name="dicom" value="No lo sé"><span>No lo sé</span></label>
+              </div>
+            </fieldset>
+            <label class="field">Ahorro disponible para el pie<input type="text" name="ahorro_pie" inputmode="numeric" data-money placeholder="$ 0" required></label>
+            <label class="field"><span>Capacidad de ahorro mensual <span class="field__opt">(opcional)</span></span><input type="text" name="ahorro_mensual" inputmode="numeric" data-money placeholder="$ 0 al mes"></label>
+          </div>
+        </fieldset>
+
+        <!-- PASO 4 -->
+        <fieldset class="step" data-step="4" hidden>
+          <legend class="step__title" tabindex="-1">Complemento de renta</legend>
+          <p class="step__hint">Sumar la renta de otra persona (cónyuge, pareja o familiar directo) puede aumentar el crédito al que puedes optar.</p>
+          <div class="form-grid">
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Complementarás renta con otra persona?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="complementa" value="si"><span>Sí</span></label>
+                <label class="choice"><input type="radio" name="complementa" value="no"><span>No</span></label>
+                <label class="choice"><input type="radio" name="complementa" value="no-se"><span>Aún no lo sé</span></label>
+              </div>
+            </fieldset>
+            <div class="subpanel" id="comp-panel" hidden>
+              <label class="field">Relación
+                <select name="comp_relacion" data-required-if-comp>
+                  <option value="">Selecciona</option>
+                  <option>Cónyuge</option>
+                  <option>Conviviente civil</option>
+                  <option>Pareja</option>
+                  <option>Familiar directo (padre, madre, hermano/a, hijo/a)</option>
+                </select>
+              </label>
+              <label class="field">Su renta líquida mensual<input type="text" name="comp_renta" inputmode="numeric" data-money placeholder="$ 0" data-required-if-comp></label>
+              <label class="field">Su situación laboral
+                <select name="comp_situacion" data-required-if-comp>
+                  <option value="">Selecciona</option>
+                  <option>Contrato indefinido</option>
+                  <option>Contrato a plazo fijo</option>
+                  <option>Independiente (boletas)</option>
+                  <option>Empresario/a o socio/a</option>
+                  <option>Jubilado/a o pensionado/a</option>
+                </select>
+              </label>
+              <label class="field">Su antigüedad laboral
+                <select name="comp_antiguedad">
+                  <option value="">Selecciona</option>
+                  <option>Menos de 1 año</option>
+                  <option>1 a 2 años</option>
+                  <option>2 a 5 años</option>
+                  <option>Más de 5 años</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- PASO 5 -->
+        <fieldset class="step" data-step="5" hidden>
+          <legend class="step__title" tabindex="-1">Tu objetivo</legend>
+          <p class="step__hint">Con esto filtramos los proyectos que vamos a recomendarte.</p>
+          <div class="form-grid">
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Para qué quieres la propiedad?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="objetivo" value="Invertir para arrendar"><span>Invertir para arrendar</span></label>
+                <label class="choice"><input type="radio" name="objetivo" value="Comprar para vivir"><span>Comprar para vivir</span></label>
+                <label class="choice"><input type="radio" name="objetivo" value="Ambas"><span>Ambas</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Cuántas propiedades te interesan?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="cantidad" value="1"><span>1</span></label>
+                <label class="choice"><input type="radio" name="cantidad" value="2"><span>2</span></label>
+                <label class="choice"><input type="radio" name="cantidad" value="3 o más"><span>3 o más</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full">
+              <legend>Comunas de interés <span class="field__opt">(puedes marcar varias)</span></legend>
+              <div class="choices">
+                <label class="choice"><input type="checkbox" name="comunas" value="Santiago Centro"><span>Santiago Centro</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="Providencia"><span>Providencia</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="Ñuñoa"><span>Ñuñoa</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="San Miguel"><span>San Miguel</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="Estación Central"><span>Estación Central</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="La Florida"><span>La Florida</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="Independencia"><span>Independencia</span></label>
+                <label class="choice"><input type="checkbox" name="comunas" value="Me da igual"><span>Me da igual</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full">
+              <legend>Tipo de entrega preferida</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="entrega" value="Inmediata"><span>Inmediata</span></label>
+                <label class="choice"><input type="radio" name="entrega" value="Futura (en verde o en blanco)"><span>Futura (en verde o en blanco)</span></label>
+                <label class="choice"><input type="radio" name="entrega" value="Me da igual"><span>Me da igual</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group full" data-required>
+              <legend>¿Cuándo te gustaría invertir?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="plazo" value="Lo antes posible"><span>Lo antes posible</span></label>
+                <label class="choice"><input type="radio" name="plazo" value="En los próximos 3 meses"><span>En 3 meses</span></label>
+                <label class="choice"><input type="radio" name="plazo" value="En 6 meses o más"><span>En 6 meses o más</span></label>
+                <label class="choice"><input type="radio" name="plazo" value="Solo estoy explorando"><span>Solo estoy explorando</span></label>
+              </div>
+            </fieldset>
+            <label class="field full"><span>Proyecto de interés <span class="field__opt">(opcional)</span></span><input type="text" name="proyecto" id="proyecto" placeholder="Ej: Proyecto Don Rafael"></label>
+            <fieldset class="choice-group" data-required>
+              <legend>¿Cómo prefieres que te contactemos?</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="canal" value="WhatsApp"><span>WhatsApp</span></label>
+                <label class="choice"><input type="radio" name="canal" value="Llamada"><span>Llamada</span></label>
+                <label class="choice"><input type="radio" name="canal" value="Correo"><span>Correo</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="choice-group">
+              <legend>Horario preferido</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="horario" value="Mañana (9 a 13 h)"><span>Mañana</span></label>
+                <label class="choice"><input type="radio" name="horario" value="Tarde (13 a 18 h)"><span>Tarde</span></label>
+                <label class="choice"><input type="radio" name="horario" value="Después de las 18 h"><span>Después de las 18 h</span></label>
+              </div>
+            </fieldset>
+            <label class="field full"><span>¿Algo más que debamos saber? <span class="field__opt">(opcional)</span></span><textarea name="comentarios" placeholder="Ej: quiero usar mi subsidio, tengo un crédito por terminar, etc."></textarea></label>
+            <label class="check full"><input type="checkbox" name="acepto" required><span>Autorizo a IMOBU a usar estos datos para evaluar mi perfil y contactarme. Ver <a href="legal.html#privacidad" target="_blank">política de privacidad</a>.</span></label>
+          </div>
+          <p class="privacy-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+            <span>No te pedimos claves bancarias ni documentos en esta etapa, y no consultamos tu DICOM: el pre-diagnóstico usa solo lo que nos declaras. Los antecedentes (liquidaciones, cotizaciones, carpeta tributaria) los solicita tu asesor más adelante.</span>
+          </p>
+        </fieldset>
+
+        <p class="form-error" id="step-error" role="alert" hidden style="margin-top: 18px">Completa los campos marcados para continuar.</p>
+
+        <div class="wizard__nav">
+          <button type="button" class="btn btn--outline btn--sm" id="btn-back" hidden>← Volver</button>
+          <span class="wizard__step-count" id="step-count">Paso 1 de 5</span>
+          <button type="button" class="btn btn--primary" id="btn-next">Continuar →</button>
+          <button type="submit" class="btn btn--primary" id="btn-submit" hidden>Enviar evaluación</button>
+        </div>
+      </form>
+
+      <!-- CONFIRMACIÓN -->
+      <div class="done" id="done" role="status" tabindex="-1">
+        <div class="done__head">
+          <div class="icon-circle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C40C4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
+          <h2 id="done-title">¡Recibimos tu evaluación!</h2>
+          <p>Un asesor IMOBU revisará tu perfil y te contactará por el canal que elegiste con tus alternativas de inversión.</p>
+        </div>
+        <ol class="next-steps">
+          <li><strong>Revisamos tu perfil</strong>Analizamos renta, deudas, ahorro y complemento como lo haría un banco.</li>
+          <li><strong>Te contactamos</strong>Conversamos tus resultados y resolvemos tus dudas.</li>
+          <li><strong>Armamos tu carpeta</strong>Te pedimos los antecedentes para presentarte a los bancos.</li>
+        </ol>
+        <table class="summary" id="summary" aria-label="Resumen de tu evaluación"></table>
+        <div class="done__projects" id="done-projects" hidden>
+          <h3>Proyectos que podrían calzar contigo</h3>
+          <div class="projects" id="done-list"></div>
+        </div>
+        <div class="actions" style="margin-top: 28px">
+          <a class="btn btn--primary" id="done-wa" href="https://wa.me/56984336430" target="_blank" rel="noopener">Escribir a mi asesor por WhatsApp</a>
+          <a class="btn btn--outline" href="proyectos.html">Ver proyectos</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRE-DIAGNÓSTICO -->
+    <aside class="diag" id="diag" aria-live="polite" aria-label="Tu pre-diagnóstico">
+      <div class="eyebrow">Tu pre-diagnóstico</div>
+      <p class="diag__empty" id="diag-empty">Cuando ingreses tu renta (paso 2) verás aquí una estimación referencial de tu capacidad de inversión.</p>
+      <div id="diag-body" class="diag__body" hidden>
+        <span class="diag__status" id="diag-status">—</span>
+        <div>
+          <div class="diag__label">Podrías optar a propiedades de hasta</div>
+          <div class="diag__big" id="diag-precio">UF 0</div>
+          <div class="diag__label" id="diag-precio-clp">≈ $0</div>
+        </div>
+        <div>
+          <div class="diag__label" id="diag-carga-label" style="margin-bottom: 8px">Carga financiera actual: 0% de tu renta</div>
+          <div class="meter" aria-hidden="true"><span id="diag-meter"></span></div>
+        </div>
+        <div class="diag__row"><span>Renta considerada</span><strong id="diag-renta">$0</strong></div>
+        <div class="diag__row"><span>Dividendo máximo referencial</span><strong id="diag-div">$0</strong></div>
+        <div class="diag__row"><span>Crédito estimado</span><strong id="diag-credito">UF 0</strong></div>
+        <div class="diag__row"><span>Pie requerido (20%)</span><strong id="diag-pie">UF 0</strong></div>
+        <div class="diag__row"><span>Tu ahorro para el pie</span><strong id="diag-ahorro">UF 0</strong></div>
+        <ul class="flags" id="diag-flags"></ul>
+        <div class="diag__matches" id="diag-matches"></div>
+      </div>
+      <p class="diag__note" id="diag-note">Estimación referencial. No es una aprobación de crédito: la evaluación formal la realiza tu asesor IMOBU junto a los bancos.</p>
+    </aside>
+  </div>
+
+</main>
+
+<!-- Resumen fijo en móvil mientras se completa la evaluación -->
+<div class="diag-mini" id="diag-mini" aria-hidden="true">
+  <div><span>Podrías invertir hasta</span><strong id="mini-precio">UF 0</strong></div>
+  <a href="#diag">Ver detalle ↓</a>
+</div>
+
+<!-- FOOTER -->
+<footer id="contacto" class="footer">
+  <div class="wrap footer__grid">
+    <div class="footer__col footer__brand">
+      <img src="img/logo-imobu-negativo.png" alt="IMOBU Asesoría Inmobiliaria" width="200" height="96">
+      <p>Asesoría y gestión integral para invertir en propiedades con seguridad y tranquilidad.</p>
+    </div>
+    <div class="footer__col">
+      <strong>Navegación</strong>
+      <a href="proyectos.html">Proyectos</a>
+      <a href="index.html#ciclo">Cómo invertir</a>
+      <a href="evaluacion.html">Evaluación de perfil</a>
+      <a href="broker.html">Sé broker IMOBU</a>
+      <a href="marcela/index.html">Asesora Marcela Díaz</a>
+    </div>
+    <div class="footer__col">
+      <strong>Contacto</strong>
+      <span data-cfg="sitio.direccion">Badajoz 130, Las Condes</span>
+      <a href="tel:+56984336430" data-cfg-tel>+56 9 8433 6430</a>
+      <a href="mailto:contacto@imobu.cl" data-cfg-mail>contacto@imobu.cl</a>
+      <span style="color: var(--on-dark)" data-cfg="sitio.horario">Lunes a viernes, 9:00 a 18:30 h</span>
+    </div>
+    <div class="footer__col">
+      <strong>Síguenos</strong>
+      <a href="https://www.instagram.com/imobu.cl/" target="_blank" rel="noopener" data-cfg-href="sitio.instagram">Instagram</a>
+      <a href="https://www.facebook.com/imobuasesoria/" target="_blank" rel="noopener" data-cfg-href="sitio.facebook">Facebook</a>
+      <a href="https://www.linkedin.com/company/imobu/" target="_blank" rel="noopener" data-cfg-href="sitio.linkedin">LinkedIn</a>
+    </div>
+  </div>
+  <div class="wrap footer__bottom">
+    <span>© 2026 IMOBU. Todos los derechos reservados.</span>
+    <span style="display: flex; gap: 20px"><a href="legal.html#terminos">Términos y condiciones</a><a href="legal.html#privacidad">Política de privacidad</a><a href="intranet.html" title="Acceso para el equipo IMOBU"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="vertical-align: -1px; margin-right: 4px"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Intranet</a></span>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="/api/config"></script>
+<script src="js/imobu.js"></script>
+<script src="js/evaluacion.js"></script>
+</body>
+</html>
