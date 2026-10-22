@@ -1,7 +1,82 @@
 ---
-// Compatibilidad con los enlaces antiguos /proyecto.html?id=… → /proyectos/<id>.html
+// Ficha dinámica: /proyecto.html?id=<id>. La usan los enlaces antiguos y, vía rewrite en vercel.json,
+// /proyectos/<id>.html cuando el proyecto se creó en la intranet y el sitio aún no se regeneró
+// (las fichas estáticas se generan en build desde src/pages/proyectos/[id].astro).
+// js/proyecto.js dibuja todo desde los parámetros publicados (/api/config).
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Proyecto — IMOBU" description="Ficha del proyecto: ubicación, tipologías, precio desde en UF y simulador de dividendo." noindex script="redirigir-proyecto">
-<main id="contenido"><section class="wrap" style="padding: 60px 0"><p>Redirigiendo a la ficha del proyecto…</p></section></main>
+<Base title="Proyecto — IMOBU" description="Ficha del proyecto: ubicación, tipologías, precio desde en UF y simulador de dividendo." noindex active="proyectos" cta={{ href: '/evaluacion.html', text: 'Evaluar mi perfil', id: 'nav-eval' }} script="proyecto" wa="">
+<main id="contenido">
+
+  <section class="wrap" id="pdp-root" aria-live="polite">
+    <div class="breadcrumb" style="padding-top: 40px"><a href="/">Inicio</a> / <a href="/proyectos.html">Proyectos</a> / Cargando…</div>
+  </section>
+
+  <!-- SIMULADOR DE DIVIDENDO -->
+  <section class="section wrap" id="simulador" hidden>
+    <div style="max-width: 680px">
+      <div class="eyebrow" style="margin-bottom: 12px">Simula tu dividendo</div>
+      <h2>¿Cuánto pagarías al mes?</h2>
+    </div>
+    <div class="calc">
+      <div class="sim__controls">
+        <div class="range">
+          <label class="range__head" for="c-precio">Precio de la unidad <span class="range__value" id="o-precio">UF 0</span></label>
+          <input type="range" id="c-precio" step="50">
+          <div class="range__scale" aria-hidden="true"><span id="s-min"></span><span id="s-max"></span></div>
+        </div>
+        <div class="range">
+          <label class="range__head" for="c-pie">Pie <span class="range__value" id="o-pie">20%</span></label>
+          <input type="range" id="c-pie" min="10" max="40" step="5" value="20">
+          <div class="range__scale" aria-hidden="true"><span>10%</span><span>40%</span></div>
+        </div>
+        <fieldset class="choice-group">
+          <legend>Plazo del crédito</legend>
+          <div class="choices plazos">
+            <label class="choice"><input type="radio" name="plazo" value="240"><span>20 años</span></label>
+            <label class="choice"><input type="radio" name="plazo" value="300" checked><span>25 años</span></label>
+            <label class="choice"><input type="radio" name="plazo" value="360"><span>30 años</span></label>
+          </div>
+        </fieldset>
+      </div>
+      <div class="sim__result" aria-live="polite">
+        <div class="eyebrow">Dividendo mensual estimado</div>
+        <div class="sim__big" id="r-div">$0</div>
+        <div class="sim__uf" id="r-div-uf">UF 0</div>
+        <div class="sim__row"><span>Pie</span><strong id="r-pie">UF 0</strong></div>
+        <div class="sim__row"><span>Crédito hipotecario</span><strong id="r-credito">UF 0</strong></div>
+        <div class="sim__row"><span>Renta líquida sugerida</span><strong id="r-renta">$0</strong></div>
+        <p class="sim__note" id="r-nota"></p>
+        <a href="/evaluacion.html" class="btn btn--white btn--sm" id="r-eval" style="align-self: flex-start">¿Califico? Evaluar mi perfil</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIMILARES -->
+  <section class="section wrap" id="similares" hidden>
+    <div class="split-head" style="margin-bottom: 28px">
+      <div>
+        <div class="eyebrow" style="margin-bottom: 12px">También te puede interesar</div>
+        <h2>Proyectos similares</h2>
+      </div>
+      <a href="/proyectos.html" class="btn btn--outline btn--sm">Ver todos los proyectos →</a>
+    </div>
+    <div class="projects" id="similares-list"></div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="padding-left: 24px; padding-right: 24px; padding-bottom: 112px">
+    <div class="cta" style="max-width: 1200px; margin: 0 auto">
+      <div style="max-width: 620px">
+        <h2>¿Quieres saber si este proyecto calza contigo?</h2>
+        <p>Completa tu evaluación de perfil y un asesor IMOBU te contactará con números claros, sin compromiso.</p>
+      </div>
+      <div class="actions">
+        <a href="/evaluacion.html" class="btn btn--white" id="cta-eval">Evaluar mi perfil</a>
+        <a href="https://wa.me/56984336430" target="_blank" rel="noopener" class="btn btn--ghost-white" id="cta-wa">Hablar por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+</main>
 </Base>

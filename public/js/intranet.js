@@ -279,7 +279,7 @@
           '<label class="field full">Descripción de la ficha<textarea name="descripcion" maxlength="4000" placeholder="Uno o más párrafos, separados por una línea en blanco"></textarea></label>' +
           '<label class="field full">Datos de la ficha<textarea name="datos" maxlength="2000" placeholder="Una línea por dato, con dos puntos. Ej:&#10;Dirección: Froilán Roa 1201, La Florida&#10;Metro: Vicuña Mackenna L4"></textarea></label>' +
           '<label class="field full">Fotos<div class="editor__foto"><img id="proy-foto-prev" alt=""><textarea name="fotos" maxlength="3000" style="flex: 1; min-height: 80px" placeholder="Una por línea: URL https (o ID de Unsplash photo-…) | descripción para accesibilidad&#10;La primera es la portada." required></textarea></div><span class="adm-hint">Idealmente sube la foto real al sitio y escribe su URL completa (https://…).</span></label>' +
-          '<label class="field">Ficha externa (URL, opcional)<input name="enlace" type="url" maxlength="300" placeholder="https://"></label>' +
+          '<label class="field">Ficha de la inmobiliaria (URL, solo referencia interna)<input name="enlace" type="url" maxlength="300" placeholder="https://"><span class="adm-hint">No se muestra en ninguna web: los proyectos se venden por nuestros medios.</span></label>' +
           '<fieldset class="choice-group"><legend>Mostrar en</legend><div class="dorms">' +
             IDS_SITIOS.map(function (id) { return '<label class="choice"><input type="checkbox" name="sitios" value="' + id + '"><span>' + esc(SITIOS[id].nombre) + '</span></label>'; }).join('') +
           '</div></fieldset>' +
