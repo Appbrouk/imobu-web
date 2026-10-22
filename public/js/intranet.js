@@ -1,23 +1,41 @@
+/* Intranet compartida de IMOBU (imobu.cl) y MD Invest (mdiaz.cl).
+   Todo vive en la base compartida (ver supabase/web.sql):
+     · web_proyectos  catálogo único; cada proyecto dice en qué webs se muestra
+     · web_leads      formularios recibidos por ambas webs
+     · web_sitios     parámetros de cada web (se editan como borrador y se publican con un botón)
+     · web_historial  auditoría de cada cambio
+   La seguridad la ponen el inicio de sesión (Supabase Auth) y las reglas RLS de la base:
+   aunque alguien manipule esta página, sin ser administrador no puede escribir nada. */
 (function () {
   var CX = window.IMOBU_CONEXION || {};
   var ONLINE = !!(CX.supabaseUrl && CX.supabaseAnonKey && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(CX.supabaseUrl));
   var INACTIVIDAD_MS = 30 * 60 * 1000;
   var sb = null;
 
-  var PUBLICADO = JSON.parse(JSON.stringify(window.IMOBU_CONFIG || {}));
-  var C = null;
+  var SITIOS = {
+    imobu: { nombre: 'IMOBU', url: 'https://imobu.cl', pill: 'pill--imobu' },
+    mdiaz: { nombre: 'MD Invest', url: 'https://mdiaz.cl', pill: 'pill--mdiaz' }
+  };
+  var IDS_SITIOS = ['imobu', 'mdiaz'];
+
+  var PUB = {};        // parámetros publicados por sitio { imobu: {...}, mdiaz: {...} }
+  var S = {};          // borrador por sitio
+  var PROY = [];       // proyectos (todas las filas de web_proyectos)
 
   var $ = function (id) { return document.getElementById(id); };
   var copiar = function (o) { return JSON.parse(JSON.stringify(o)); };
-  var get = function (path) { return path.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, C); };
-  var set = function (path, v) {
-    var ks = path.split('.'), o = C;
+  var igual = function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
+  var get = function (sitio, path) { return path.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, S[sitio]); };
+  var set = function (sitio, path, v) {
+    var ks = path.split('.'), o = S[sitio];
     ks.slice(0, -1).forEach(function (k) { if (o[k] == null) o[k] = {}; o = o[k]; });
     o[ks[ks.length - 1]] = v;
   };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var slug = function (t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^proyecto\s+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+  var slug = function (t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^proyecto\s+/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60); };
   var fecha = function (iso) { try { return new Date(iso).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return iso; } };
+  var fotoUrl = function (f) { return !f ? '' : /^https?:\/\//.test(f) ? f : 'https://images.unsplash.com/' + f + '?w=200&q=60&auto=format&fit=crop'; };
+  var ufFmt = function (n) { return 'UF ' + Math.round(Number(n) || 0).toLocaleString('es-CL'); };
 
   function vista(nombre) {
     ['login', 'clave', 'panel'].forEach(function (v) { $('vista-' + v).hidden = v !== nombre; });
@@ -25,56 +43,90 @@
   function toast(t) {
     var el = $('toast');
     el.textContent = t; el.hidden = false;
-    clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 3200);
+    clearTimeout(toast.t); toast.t = setTimeout(function () { el.hidden = true; }, 3600);
   }
   function msg(id, texto) { var el = $(id); el.textContent = texto || ''; el.hidden = !texto; }
-
-  // ── Borrador local (para la vista previa) ──
-  function guardarBorrador() {
-    try { localStorage.setItem('imobu-config-borrador', JSON.stringify(C)); } catch (e) { /* sin almacenamiento */ }
-    var cambios = JSON.stringify(C) !== JSON.stringify(PUBLICADO);
-    var est = $('estado');
-    est.textContent = cambios ? 'Cambios sin publicar' : (ONLINE ? 'Publicado' : 'Sin cambios');
-    est.className = 'adm-estado' + (cambios ? ' adm-estado--cambios' : (ONLINE ? ' adm-estado--ok' : ''));
+  function errorDe(r, accion) {
+    if (!r || !r.error) return '';
+    if (r.error.code === '42501') return 'Tu cuenta no tiene permiso para ' + (accion || 'hacer esto') + '.';
+    if (r.error.code === '23505') return 'Ya existe un registro con ese identificador.';
+    return 'No se pudo ' + (accion || 'guardar') + '. Revisa tu conexión o vuelve a ingresar.';
   }
 
-  // ════════════════════ EDITOR ════════════════════
-  var SECCIONES = [
-    { id: 'general', titulo: 'Contacto y redes', intro: 'Datos del pie de página, los botones de WhatsApp y los links a redes de todas las páginas.', campos: [
-      ['sitio.nombre', 'Nombre de la empresa', 'text'],
-      ['sitio.telefono', 'Teléfono visible', 'text', { hint: 'Como se mostrará. Ej: +56 9 8433 6430' }],
-      ['sitio.whatsapp', 'Número de WhatsApp', 'whatsapp', { hint: 'Solo números, con 56 al inicio. Ej: 56984336430' }],
-      ['sitio.email', 'Correo de contacto', 'email'],
-      ['sitio.direccion', 'Dirección', 'text'],
-      ['sitio.horario', 'Horario de atención', 'text'],
-      ['sitio.instagram', 'Instagram (URL)', 'url'],
-      ['sitio.facebook', 'Facebook (URL)', 'url'],
-      ['sitio.linkedin', 'LinkedIn (URL)', 'url']
-    ] },
-    { id: 'cifras', titulo: 'Cifras del inicio', intro: 'Los tres indicadores de confianza del home. Usa solo cifras reales y verificables.', campos: [
-      ['cifras.experiencia', 'Años de experiencia', 'text', { hint: 'Ej: +8 años' }],
-      ['cifras.inversionistas', 'Inversionistas asesorados', 'text', { hint: 'Ej: +450' }],
-      ['cifras.inmobiliarias', 'Inmobiliarias aliadas', 'text', { hint: 'Ej: 12' }]
-    ] },
-    { id: 'finanzas', titulo: 'Supuestos financieros', intro: 'Se usan en el dividendo de las tarjetas, el simulador de cada proyecto y el pre-diagnóstico de la evaluación. Actualiza la UF y la tasa periódicamente.', campos: [
-      ['finanzas.uf', 'Valor UF ($)', 'number', { min: 30000, max: 60000, step: 1 }],
-      ['finanzas.tasaAnual', 'Tasa anual crédito (%)', 'number', { min: 1, max: 15, step: 0.01 }],
-      ['finanzas.plazoAnos', 'Plazo del crédito (años)', 'number', { min: 5, max: 40, step: 1 }],
-      ['finanzas.piePct', 'Pie (%)', 'number', { min: 5, max: 50, step: 1 }],
-      ['finanzas.dividendoMaxPct', 'Dividendo máximo sobre la renta (%)', 'number', { min: 10, max: 50, step: 1 }],
-      ['finanzas.cargaMaxPct', 'Carga financiera máxima (%)', 'number', { min: 20, max: 70, step: 1 }],
-      ['finanzas.rentaMinima', 'Renta mínima referencial ($)', 'number', { min: 0, max: 5000000, step: 10000 }]
-    ] },
-    { id: 'brokers', titulo: 'Programa Brokers', intro: 'Parámetros de la landing de brokers y su simulador de ingresos.', campos: [
-      ['brokers.comisionPct', 'Comisión del broker sobre el valor de la unidad (%)', 'number', { min: 0.1, max: 10, step: 0.05, hint: 'Confirma este valor con el plan de comisiones real.' }],
-      ['brokers.proximaGeneracion', 'Próxima generación (texto)', 'text', { hint: 'Ej: Lunes 2 de noviembre' }],
-      ['brokers.duracionOnboarding', 'Duración del onboarding', 'text', { hint: 'Ej: 4 semanas' }]
-    ] },
-    { id: 'formularios', titulo: 'Formularios', intro: 'Dónde llegan los formularios y la verificación anti-bots. Ver SEGURIDAD.md.', aviso: 'Aquí solo van datos PÚBLICOS. Nunca escribas contraseñas ni claves secretas: estos parámetros se publican en el sitio y cualquiera puede leerlos. Las claves secretas van en las variables de entorno del hosting.', campos: [
-      ['formularios.endpoint', 'Dirección del receptor de formularios', 'endpoint', { hint: 'Normalmente /api/formulario. Vacío = modo demostración (no se envía nada).' }],
-      ['formularios.turnstileSiteKey', 'Cloudflare Turnstile: clave del sitio (pública)', 'text', { hint: 'La "site key", NO la "secret key". Vacío = sin verificación anti-bots visible.' }]
-    ] }
+  // ── Estado del borrador (parámetros de los sitios) ──
+  function hayCambios() { return IDS_SITIOS.some(function (id) { return !igual(S[id], PUB[id]); }); }
+  function guardarBorrador() {
+    try {
+      localStorage.setItem('web-intranet-borrador', JSON.stringify(S));
+      // La vista previa de imobu.cl lee este borrador (js/imobu.js)
+      localStorage.setItem('imobu-config-borrador', JSON.stringify(Object.assign({}, S.imobu, { proyectos: proyectosImobu() })));
+    } catch (e) { /* sin almacenamiento */ }
+    var cambios = hayCambios();
+    var est = $('estado');
+    est.textContent = cambios ? 'Parámetros sin publicar' : 'Publicado';
+    est.className = 'adm-estado' + (cambios ? ' adm-estado--cambios' : ' adm-estado--ok');
+  }
+
+  // ════════════════════ PARÁMETROS DE CADA SITIO ════════════════════
+  var FINANZAS = [
+    ['finanzas.uf', 'Valor UF ($)', 'number', { min: 30000, max: 60000, step: 1 }],
+    ['finanzas.tasaAnual', 'Tasa anual crédito (%)', 'number', { min: 1, max: 15, step: 0.01 }],
+    ['finanzas.plazoAnos', 'Plazo del crédito (años)', 'number', { min: 5, max: 40, step: 1 }],
+    ['finanzas.piePct', 'Pie (%)', 'number', { min: 5, max: 50, step: 1 }],
+    ['finanzas.dividendoMaxPct', 'Dividendo máximo sobre la renta (%)', 'number', { min: 10, max: 50, step: 1 }],
+    ['finanzas.cargaMaxPct', 'Carga financiera máxima (%)', 'number', { min: 20, max: 70, step: 1 }],
+    ['finanzas.rentaMinima', 'Renta mínima referencial ($)', 'number', { min: 0, max: 5000000, step: 10000 }]
   ];
+  var SECCIONES = {
+    imobu: [
+      { id: 'general', titulo: 'Contacto y redes', intro: 'Datos del pie de página, los botones de WhatsApp y los links a redes de todas las páginas de imobu.cl.', campos: [
+        ['sitio.nombre', 'Nombre de la empresa', 'text'],
+        ['sitio.telefono', 'Teléfono visible', 'text', { hint: 'Como se mostrará. Ej: +56 9 8433 6430' }],
+        ['sitio.whatsapp', 'Número de WhatsApp', 'whatsapp', { hint: 'Solo números, con 56 al inicio. Ej: 56984336430' }],
+        ['sitio.email', 'Correo de contacto', 'email'],
+        ['sitio.direccion', 'Dirección', 'text'],
+        ['sitio.horario', 'Horario de atención', 'text'],
+        ['sitio.instagram', 'Instagram (URL)', 'url'],
+        ['sitio.facebook', 'Facebook (URL)', 'url'],
+        ['sitio.linkedin', 'LinkedIn (URL)', 'url']
+      ] },
+      { id: 'cifras', titulo: 'Cifras del inicio', intro: 'Los tres indicadores de confianza del home. Usa solo cifras reales y verificables.', campos: [
+        ['cifras.experiencia', 'Años de experiencia', 'text', { hint: 'Ej: +8 años' }],
+        ['cifras.inversionistas', 'Inversionistas asesorados', 'text', { hint: 'Ej: +450' }],
+        ['cifras.inmobiliarias', 'Inmobiliarias aliadas', 'text', { hint: 'Ej: 12' }]
+      ] },
+      { id: 'finanzas', titulo: 'Supuestos financieros', intro: 'Se usan en el dividendo de las tarjetas, el simulador de cada proyecto y el pre-diagnóstico de la evaluación. Actualiza la UF y la tasa periódicamente.', campos: FINANZAS },
+      { id: 'brokers', titulo: 'Programa Brokers', intro: 'Parámetros de la landing de brokers y su simulador de ingresos.', campos: [
+        ['brokers.comisionPct', 'Comisión del broker sobre el valor de la unidad (%)', 'number', { min: 0.1, max: 10, step: 0.05, hint: 'Confirma este valor con el plan de comisiones real.' }],
+        ['brokers.proximaGeneracion', 'Próxima generación (texto)', 'text', { hint: 'Ej: Lunes 2 de noviembre' }],
+        ['brokers.duracionOnboarding', 'Duración del onboarding', 'text', { hint: 'Ej: 4 semanas' }]
+      ] },
+      { id: 'formularios', titulo: 'Formularios', intro: 'Dónde llegan los formularios de imobu.cl y la verificación anti-bots. Ver SEGURIDAD.md.', aviso: 'Aquí solo van datos PÚBLICOS. Nunca escribas contraseñas ni claves secretas: estos parámetros se publican en el sitio y cualquiera puede leerlos. Las claves secretas van en las variables de entorno del hosting.', campos: [
+        ['formularios.endpoint', 'Dirección del receptor de formularios', 'endpoint', { hint: 'Normalmente /api/formulario. Vacío = modo demostración (no se envía nada).' }],
+        ['formularios.turnstileSiteKey', 'Cloudflare Turnstile: clave del sitio (pública)', 'text', { hint: 'La "site key", NO la "secret key". Vacío = sin verificación anti-bots visible.' }]
+      ] }
+    ],
+    mdiaz: [
+      { id: 'general', titulo: 'Contacto y redes', intro: 'Datos de contacto y redes de mdiaz.cl. El WhatsApp se usa en todos los botones "Conversemos" y en la evaluación.', campos: [
+        ['sitio.nombre', 'Nombre', 'text'],
+        ['sitio.telefono', 'Teléfono visible', 'text'],
+        ['sitio.whatsapp', 'Número de WhatsApp', 'whatsapp', { hint: 'Solo números, con 56 al inicio. Ej: 56951497482' }],
+        ['sitio.email', 'Correo de contacto', 'email'],
+        ['sitio.direccion', 'Dirección', 'text'],
+        ['sitio.instagram', 'Instagram (URL)', 'url'],
+        ['sitio.tiktok', 'TikTok (URL)', 'url'],
+        ['sitio.linkedin', 'LinkedIn (URL)', 'url'],
+        ['sitio.facebook', 'Facebook (URL)', 'url']
+      ] },
+      { id: 'finanzas', titulo: 'Supuestos financieros', intro: 'Se usan en el pre-diagnóstico del evaluador de mdiaz.cl. Conviene mantenerlos iguales a los de IMOBU.', campos: FINANZAS },
+      { id: 'formularios', titulo: 'Formularios y HubSpot', intro: 'Los formularios de mdiaz.cl llegan a esta intranet (pestaña Formularios). El registro además se copia a HubSpot si está configurado.', aviso: 'Solo datos PÚBLICOS: el portal y el formulario de HubSpot van a la vista en cualquier formulario embebido. Nunca escribas claves secretas aquí.', campos: [
+        ['formularios.turnstileSiteKey', 'Cloudflare Turnstile: clave del sitio (pública)', 'text', { hint: 'Vacío = sin verificación anti-bots visible.' }],
+        ['hubspot.portalId', 'HubSpot: Portal ID', 'text', { hint: 'Vacío = no se copia a HubSpot.' }],
+        ['hubspot.formGuid', 'HubSpot: ID del formulario', 'text'],
+        ['hubspot.region', 'HubSpot: región', 'text', { hint: 'na1 (por defecto) o eu1' }]
+      ] }
+    ]
+  };
 
   var VALIDA = {
     url: function (v) { return !v || /^https:\/\/[^\s<>"]+$/.test(v) ? '' : 'Debe comenzar con https://'; },
@@ -84,12 +136,12 @@
     text: function (v) { return /[<>]/.test(v) ? 'No uses los caracteres < >' : ''; }
   };
 
-  function campoHTML(c) {
+  function campoHTML(sitio, c) {
     var ruta = c[0], label = c[1], tipo = c[2], o = c[3] || {};
-    var v = get(ruta);
+    var v = get(sitio, ruta);
     var inputType = tipo === 'number' ? 'number' : tipo === 'email' ? 'email' : tipo === 'url' ? 'url' : 'text';
     var attrs = tipo === 'number' ? ' min="' + o.min + '" max="' + o.max + '" step="' + o.step + '" inputmode="decimal"' : ' maxlength="200"';
-    return '<label class="field" data-ruta="' + ruta + '" data-tipo="' + tipo + '">' + esc(label) +
+    return '<label class="field" data-sitio="' + sitio + '" data-ruta="' + ruta + '" data-tipo="' + tipo + '">' + esc(label) +
       '<input type="' + inputType + '"' + attrs + ' value="' + esc(v == null ? '' : v) + '">' +
       (o.hint ? '<span class="adm-hint">' + esc(o.hint) + '</span>' : '') +
       '<span class="adm-error" hidden></span></label>';
@@ -112,18 +164,34 @@
     var label = e.target.closest('[data-ruta]');
     if (!label) return;
     var r = validarCampo(label);
-    if (r.ok) { set(label.getAttribute('data-ruta'), r.valor); guardarBorrador(); }
+    if (r.ok) { set(label.getAttribute('data-sitio'), label.getAttribute('data-ruta'), r.valor); guardarBorrador(); }
   }
 
+  // ── Asesores (IMOBU) ──
+  var CAMPOS_ASESOR = [
+    ['nombre', 'Nombre', 'text'], ['cargo', 'Cargo', 'text'], ['whatsapp', 'WhatsApp', 'whatsapp'], ['telefono', 'Teléfono visible', 'text'],
+    ['instagram', 'Instagram (URL)', 'url'], ['tiktok', 'TikTok (URL)', 'url'], ['linkedin', 'LinkedIn (URL)', 'url'], ['facebook', 'Facebook (URL)', 'url'],
+    ['foto', 'Foto principal (URL)', 'url'], ['fotoTrabajo', 'Foto trabajando (URL)', 'url'], ['fotoLlamada', 'Foto en llamada (URL)', 'url']
+  ];
+  function asesoresHTML() {
+    return '<h3 style="margin-top: 28px">Asesores</h3><p style="color: var(--muted); font-size: 14px; margin: 6px 0 16px">Datos de las páginas personales de los asesores (por ejemplo imobu.cl/marcela/). Los clientes que llegan desde esas páginas quedan atribuidos al asesor.</p>' +
+      (S.imobu.asesores || []).map(function (a, i) {
+        return '<div class="asesor-card"><div class="asesor-card__head"><strong>' + esc(a.nombre) + '</strong> <span class="adm-hint">· id: ' + esc(a.id) + '</span></div>' +
+          '<div class="adm-grid">' + CAMPOS_ASESOR.map(function (c) { return campoHTML('imobu', ['asesores.' + i + '.' + c[0], c[1], c[2]]); }).join('') + '</div></div>';
+      }).join('');
+  }
+
+  // ════════════════════ PANEL ════════════════════
   var tabs = $('tabs'), paneles = $('paneles');
   var construido = false;
   function construir() {
-    if (construido) return reconstruir();
+    if (construido) return;
     construido = true;
-    var todas = SECCIONES.map(function (s) { return { id: s.id, titulo: s.titulo }; })
-      .concat([{ id: 'proyectos', titulo: 'Proyectos' }, { id: 'asesores', titulo: 'Asesores' }])
-      .concat(ONLINE ? [{ id: 'postulantes', titulo: 'Postulantes' }, { id: 'historial', titulo: 'Historial' }] : [])
-      .concat([{ id: 'publicar', titulo: ONLINE ? 'Respaldo' : 'Cómo publicar' }]);
+    var todas = [
+      { id: 'proyectos', titulo: 'Proyectos' }, { id: 'leads', titulo: 'Formularios' },
+      { id: 'imobu', titulo: 'Web IMOBU' }, { id: 'mdiaz', titulo: 'Web MD Invest' },
+      { id: 'historial', titulo: 'Historial' }, { id: 'respaldo', titulo: 'Respaldo' }
+    ];
     todas.forEach(function (s, i) {
       var b = document.createElement('button');
       b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'tab-' + s.id;
@@ -133,20 +201,16 @@
       b.addEventListener('click', function () { mostrar(s.id); });
       tabs.appendChild(b);
     });
-    SECCIONES.forEach(function (s) {
-      var p = nuevoPanel(s.id);
-      p.innerHTML = '<h2>' + esc(s.titulo) + '</h2><p>' + esc(s.intro) + '</p>' +
-        (s.aviso ? '<div class="adm-warn">' + esc(s.aviso) + '</div>' : '') +
-        '<div class="adm-grid">' + s.campos.map(campoHTML).join('') + '</div>';
+    construirProyectos();
+    construirLeads();
+    IDS_SITIOS.forEach(function (id) {
+      var p = nuevoPanel(id);
       p.addEventListener('input', alEditar);
     });
-    construirProyectos();
-    var pAse = nuevoPanel('asesores');
-    pAse.addEventListener('input', alEditar);
-    if (ONLINE) { construirPostulantes(); construirHistorial(); }
-    construirPublicar();
-    listarProyectos(); listarAsesores();
-    mostrar('general');
+    pintarSitios();
+    construirHistorial();
+    construirRespaldo();
+    mostrar('proyectos');
   }
   function nuevoPanel(id) {
     var p = document.createElement('section');
@@ -158,91 +222,150 @@
     tabs.querySelectorAll('[role="tab"]').forEach(function (b) { b.setAttribute('aria-selected', b.id === 'tab-' + id ? 'true' : 'false'); });
     paneles.querySelectorAll('.adm-panel').forEach(function (p) { p.hidden = p.id !== 'panel-' + id; });
     if (id === 'historial') cargarHistorial();
-    if (id === 'postulantes') cargarPostulantes();
+    if (id === 'leads') cargarLeads();
   }
-  function reconstruir() {
-    SECCIONES.forEach(function (s) {
-      document.querySelectorAll('#panel-' + s.id + ' [data-ruta]').forEach(function (label) {
-        var v = get(label.getAttribute('data-ruta'));
-        label.querySelector('input').value = v == null ? '' : v;
-        validarCampo(label);
-      });
+  function pintarSitios() {
+    IDS_SITIOS.forEach(function (id) {
+      var p = $('panel-' + id);
+      p.innerHTML = '<h2>Parámetros de ' + esc(SITIOS[id].nombre) + '</h2><p>Se editan como borrador y se publican con <strong>Guardar y publicar</strong>. Sitio: <a href="' + SITIOS[id].url + '" target="_blank" rel="noopener">' + esc(SITIOS[id].url) + '</a></p>' +
+        SECCIONES[id].map(function (s) {
+          return '<h3 style="margin-top: 28px">' + esc(s.titulo) + '</h3><p style="color: var(--muted); font-size: 14px; margin: 6px 0 16px">' + esc(s.intro) + '</p>' +
+            (s.aviso ? '<div class="adm-warn">' + esc(s.aviso) + '</div>' : '') +
+            '<div class="adm-grid">' + s.campos.map(function (c) { return campoHTML(id, c); }).join('') + '</div>';
+        }).join('') +
+        (id === 'imobu' ? asesoresHTML() : '');
+      p.querySelectorAll('[data-ruta]').forEach(validarCampo);
     });
-    listarProyectos(); listarAsesores(); guardarBorrador();
+    guardarBorrador();
   }
 
-  // ── Proyectos ──
-  var editIndex = -1;
-  var fotoUrl = function (f) { return /^https?:\/\//.test(f) ? f : 'https://images.unsplash.com/' + f + '?w=200&q=60&auto=format&fit=crop'; };
+  // ════════════════════ PROYECTOS (web_proyectos) ════════════════════
+  var editId = null;
+  function proyectosImobu() {
+    // Forma que usa imobu.cl (para la vista previa)
+    return PROY.filter(function (p) { return p.activo && p.sitios.indexOf('imobu') >= 0; }).map(function (p) {
+      var f = (p.fotos || [])[0] || {};
+      return { id: p.id, nombre: p.nombre, inmobiliaria: p.inmobiliaria, comuna: p.comuna, uf: Number(p.uf), entrega: p.entrega, dorm: p.dorm, m2: p.m2, destacado: p.destacado, ejemplo: p.ejemplo, foto: f.src || '', alt: f.alt || '' };
+    });
+  }
+  function cargarProyectos() {
+    return sb.from('web_proyectos').select('*').order('orden', { ascending: true }).order('nombre', { ascending: true }).then(function (r) {
+      if (r.error) { toast(errorDe(r, 'cargar los proyectos')); return; }
+      PROY = r.data || [];
+      listarProyectos();
+      guardarBorrador();
+    });
+  }
   function construirProyectos() {
     var p = nuevoPanel('proyectos');
-    p.innerHTML = '<h2>Proyectos</h2><p>Catálogo, fichas, destacados del inicio y recomendaciones de la evaluación salen de esta lista. Usa ↑ ↓ para ordenar.</p>' +
-      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th></th><th>Proyecto</th><th class="col-ocultable">Comuna</th><th>Desde</th><th class="col-ocultable">Estado</th><th></th></tr></thead><tbody id="proy-list"></tbody></table></div>' +
+    p.innerHTML = '<h2>Proyectos</h2><p>Catálogo único de ambas webs: cada proyecto dice en qué sitios se muestra. Los cambios se guardan al instante en la base; imobu.cl se regenera sola en 1 a 2 minutos y mdiaz.cl los muestra en menos de un minuto. Usa ↑ ↓ para ordenar.</p>' +
+      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th></th><th>Proyecto</th><th class="col-ocultable">Comuna</th><th>Desde</th><th>Webs</th><th></th></tr></thead><tbody id="proy-list"><tr><td colspan="6">Cargando…</td></tr></tbody></table></div>' +
       '<button type="button" class="btn btn--primary btn--sm" id="proy-nuevo" style="margin-top: 16px">+ Agregar proyecto</button>' +
       '<form class="editor" id="proy-editor" hidden novalidate>' +
         '<h3 id="proy-editor-titulo">Editar proyecto</h3>' +
         '<div class="adm-grid">' +
           '<label class="field">Nombre<input name="nombre" maxlength="80" required></label>' +
-          '<label class="field">Identificador para la URL<input name="id" maxlength="60" pattern="[a-z0-9\\-]+" required><span class="adm-hint">Solo minúsculas, números y guiones.</span></label>' +
-          '<label class="field">Inmobiliaria<input name="inmobiliaria" maxlength="60" required></label>' +
-          '<label class="field">Comuna<input name="comuna" maxlength="60" required></label>' +
+          '<label class="field">Identificador para la URL<input name="id" maxlength="60" pattern="[a-z0-9][a-z0-9\\-]*" required><span class="adm-hint">Solo minúsculas, números y guiones. No se puede cambiar después de crear el proyecto.</span></label>' +
+          '<label class="field">Inmobiliaria<input name="inmobiliaria" maxlength="80" required></label>' +
+          '<label class="field">Comuna<input name="comuna" maxlength="80" required></label>' +
           '<label class="field">Precio desde (UF)<input name="uf" type="number" min="300" max="100000" step="1" required></label>' +
           '<label class="field">Entrega<select name="entrega"><option value="inmediata">Inmediata</option><option value="futura">Futura</option></select></label>' +
           '<label class="field">Superficies<input name="m2" maxlength="40" placeholder="Ej: 30 a 55 m²" required></label>' +
-          '<fieldset class="choice-group"><legend>Tipologías</legend><div class="dorms">' +
+          '<label class="field">Etiqueta (opcional)<input name="etiqueta" maxlength="40" placeholder="Ej: Últimas unidades"><span class="adm-hint">Texto corto en la tarjeta de mdiaz.cl. Vacío = "Entrega inmediata" o "Entrega futura".</span></label>' +
+          '<fieldset class="choice-group full"><legend>Tipologías</legend><div class="dorms">' +
             [0, 1, 2, 3, 4].map(function (d) { return '<label class="choice"><input type="checkbox" name="dorm" value="' + d + '"><span>' + (d === 0 ? 'Studio' : d + 'D') + '</span></label>'; }).join('') +
           '</div></fieldset>' +
-          '<label class="field full">Foto (ID de Unsplash o URL https)<div class="editor__foto"><img id="proy-foto-prev" alt=""><input name="foto" maxlength="300" required style="flex: 1"></div><span class="adm-hint">Idealmente sube la foto real al sitio y escribe su URL completa.</span></label>' +
-          '<label class="field full">Descripción de la foto (accesibilidad)<input name="alt" maxlength="140" required></label>' +
-          '<label class="check"><input type="checkbox" name="destacado"><span>Destacado en el inicio</span></label>' +
+          '<label class="field full">Resumen (una frase para la tarjeta)<input name="resumen" maxlength="300"></label>' +
+          '<label class="field full">Descripción de la ficha<textarea name="descripcion" maxlength="4000" placeholder="Uno o más párrafos, separados por una línea en blanco"></textarea></label>' +
+          '<label class="field full">Datos de la ficha<textarea name="datos" maxlength="2000" placeholder="Una línea por dato, con dos puntos. Ej:&#10;Dirección: Froilán Roa 1201, La Florida&#10;Metro: Vicuña Mackenna L4"></textarea></label>' +
+          '<label class="field full">Fotos<div class="editor__foto"><img id="proy-foto-prev" alt=""><textarea name="fotos" maxlength="3000" style="flex: 1; min-height: 80px" placeholder="Una por línea: URL https (o ID de Unsplash photo-…) | descripción para accesibilidad&#10;La primera es la portada." required></textarea></div><span class="adm-hint">Idealmente sube la foto real al sitio y escribe su URL completa (https://…).</span></label>' +
+          '<label class="field">Ficha externa (URL, opcional)<input name="enlace" type="url" maxlength="300" placeholder="https://"></label>' +
+          '<fieldset class="choice-group"><legend>Mostrar en</legend><div class="dorms">' +
+            IDS_SITIOS.map(function (id) { return '<label class="choice"><input type="checkbox" name="sitios" value="' + id + '"><span>' + esc(SITIOS[id].nombre) + '</span></label>'; }).join('') +
+          '</div></fieldset>' +
+          '<label class="check"><input type="checkbox" name="destacado"><span>Destacado en el inicio de IMOBU</span></label>' +
           '<label class="check"><input type="checkbox" name="ejemplo"><span>Es un proyecto de ejemplo (no real)</span></label>' +
+          '<label class="check"><input type="checkbox" name="activo" checked><span>Activo (visible en las webs marcadas)</span></label>' +
         '</div>' +
         '<p class="form-error" id="proy-error" hidden style="margin-top: 14px"></p>' +
-        '<div class="actions" style="margin-top: 20px"><button type="submit" class="btn btn--primary btn--sm">Guardar proyecto</button><button type="button" class="btn btn--outline btn--sm" id="proy-cancelar">Cancelar</button></div>' +
+        '<div class="actions" style="margin-top: 20px"><button type="submit" class="btn btn--primary btn--sm" id="proy-guardar">Guardar en la base</button><button type="button" class="btn btn--outline btn--sm" id="proy-cancelar">Cancelar</button></div>' +
       '</form>';
 
     p.addEventListener('click', function (e) {
       var b = e.target.closest('[data-acc]');
       if (!b) return;
-      var i = Number(b.getAttribute('data-i')), L = C.proyectos, acc = b.getAttribute('data-acc');
-      if (acc === 'editar') return abrirEditor(i);
-      if (acc === 'borrar') { if (!confirm('¿Eliminar "' + L[i].nombre + '" de la lista?')) return; L.splice(i, 1); }
-      if (acc === 'subir' && i > 0) L.splice(i - 1, 0, L.splice(i, 1)[0]);
-      if (acc === 'bajar' && i < L.length - 1) L.splice(i + 1, 0, L.splice(i, 1)[0]);
-      guardarBorrador(); listarProyectos();
+      var id = b.getAttribute('data-id'), acc = b.getAttribute('data-acc');
+      var i = PROY.findIndex(function (x) { return x.id === id; });
+      if (i < 0) return;
+      if (acc === 'editar') return abrirEditor(id);
+      if (acc === 'borrar') return borrarProyecto(PROY[i]);
+      if (acc === 'subir' && i > 0) return intercambiar(PROY[i], PROY[i - 1]);
+      if (acc === 'bajar' && i < PROY.length - 1) return intercambiar(PROY[i], PROY[i + 1]);
     });
-    $('proy-nuevo').addEventListener('click', function () { abrirEditor(-1); });
+    $('proy-nuevo').addEventListener('click', function () { abrirEditor(null); });
     $('proy-cancelar').addEventListener('click', function () { $('proy-editor').hidden = true; });
     var ed = $('proy-editor');
-    ed.elements.nombre.addEventListener('input', function () { if (editIndex < 0) ed.elements.id.value = slug(this.value); });
-    ed.elements.foto.addEventListener('change', function () { $('proy-foto-prev').src = this.value.trim() ? fotoUrl(this.value.trim()) : ''; });
+    ed.elements.nombre.addEventListener('input', function () { if (editId == null) ed.elements.id.value = slug(this.value); });
+    ed.elements.fotos.addEventListener('input', function () { var f = parsearFotos(this.value)[0]; $('proy-foto-prev').src = f ? fotoUrl(f.src) : ''; });
     ed.addEventListener('submit', guardarProyecto);
   }
-  function listarProyectos() {
-    var lista = C.proyectos || [];
-    $('proy-list').innerHTML = lista.map(function (p, i) {
-      return '<tr><td><img src="' + esc(fotoUrl(p.foto)) + '" alt=""></td>' +
-        '<td><strong>' + esc(p.nombre) + '</strong><br><span class="adm-hint">' + esc(p.inmobiliaria) + '</span></td>' +
-        '<td class="col-ocultable">' + esc(p.comuna) + '</td><td>UF ' + Number(p.uf).toLocaleString('es-CL') + '</td>' +
-        '<td class="col-ocultable">' + (p.destacado ? '<span class="pill pill--dest">Destacado</span> ' : '') + (p.ejemplo ? '<span class="pill pill--ejemplo">Ejemplo</span>' : '') + '</td>' +
-        '<td><div class="acciones">' +
-          '<button type="button" class="mini-btn" data-acc="subir" data-i="' + i + '" aria-label="Subir ' + esc(p.nombre) + '">↑</button>' +
-          '<button type="button" class="mini-btn" data-acc="bajar" data-i="' + i + '" aria-label="Bajar ' + esc(p.nombre) + '">↓</button>' +
-          '<button type="button" class="mini-btn" data-acc="editar" data-i="' + i + '">Editar</button>' +
-          '<button type="button" class="mini-btn mini-btn--peligro" data-acc="borrar" data-i="' + i + '">Eliminar</button>' +
-        '</div></td></tr>';
-    }).join('');
+  function pillsSitios(p) {
+    var h = p.sitios.map(function (s) { return SITIOS[s] ? '<span class="pill ' + SITIOS[s].pill + '">' + esc(SITIOS[s].nombre) + '</span>' : ''; }).join('');
+    if (!p.activo) h += '<span class="pill pill--oculto">Oculto</span>';
+    if (p.destacado) h += '<span class="pill pill--dest">Destacado</span>';
+    if (p.ejemplo) h += '<span class="pill pill--ejemplo">Ejemplo</span>';
+    return '<div class="sitios-pills">' + (h || '<span class="pill pill--oculto">En ninguna web</span>') + '</div>';
   }
-  function abrirEditor(i) {
-    editIndex = i;
+  function listarProyectos() {
+    var tb = $('proy-list');
+    tb.innerHTML = PROY.length ? PROY.map(function (p) {
+      var f = (p.fotos || [])[0] || {};
+      return '<tr><td><img src="' + esc(fotoUrl(f.src)) + '" alt=""></td>' +
+        '<td><strong>' + esc(p.nombre) + '</strong><br><span class="adm-hint">' + esc(p.inmobiliaria) + ' · ' + esc(p.id) + '</span></td>' +
+        '<td class="col-ocultable">' + esc(p.comuna) + '</td><td>' + ufFmt(p.uf) + '</td>' +
+        '<td>' + pillsSitios(p) + '</td>' +
+        '<td><div class="acciones">' +
+          '<button type="button" class="mini-btn" data-acc="subir" data-id="' + esc(p.id) + '" aria-label="Subir ' + esc(p.nombre) + '">↑</button>' +
+          '<button type="button" class="mini-btn" data-acc="bajar" data-id="' + esc(p.id) + '" aria-label="Bajar ' + esc(p.nombre) + '">↓</button>' +
+          '<button type="button" class="mini-btn" data-acc="editar" data-id="' + esc(p.id) + '">Editar</button>' +
+          '<button type="button" class="mini-btn mini-btn--peligro" data-acc="borrar" data-id="' + esc(p.id) + '">Eliminar</button>' +
+        '</div></td></tr>';
+    }).join('') : '<tr><td colspan="6">Aún no hay proyectos. Agrega el primero con el botón de abajo.</td></tr>';
+  }
+  function parsearFotos(texto) {
+    return String(texto).split('\n').map(function (l) {
+      var partes = l.split('|'), src = (partes[0] || '').trim();
+      return src ? { src: src, alt: (partes.slice(1).join('|') || '').trim() } : null;
+    }).filter(Boolean);
+  }
+  function parsearDatos(texto) {
+    return String(texto).split('\n').map(function (l) {
+      var i = l.indexOf(':');
+      if (i < 1) return null;
+      var k = l.slice(0, i).trim(), v = l.slice(i + 1).trim();
+      return k && v ? [k, v] : null;
+    }).filter(Boolean);
+  }
+  function abrirEditor(id) {
+    editId = id;
     var f = $('proy-editor');
-    var p = i >= 0 ? C.proyectos[i] : { nombre: '', id: '', inmobiliaria: '', comuna: '', uf: '', entrega: 'inmediata', dorm: [1, 2], m2: '', foto: '', alt: '', destacado: false, ejemplo: false };
-    $('proy-editor-titulo').textContent = i >= 0 ? 'Editar: ' + p.nombre : 'Nuevo proyecto';
-    ['nombre', 'id', 'inmobiliaria', 'comuna', 'uf', 'entrega', 'm2', 'foto', 'alt'].forEach(function (k) { f.elements[k].value = p[k] == null ? '' : p[k]; });
+    var p = id != null ? PROY.find(function (x) { return x.id === id; }) : {
+      nombre: '', id: '', inmobiliaria: '', comuna: '', uf: '', entrega: 'inmediata', dorm: [1, 2], m2: '', etiqueta: '', resumen: '',
+      descripcion: [], datos: [], fotos: [], enlace: '', sitios: ['imobu', 'mdiaz'], destacado: false, ejemplo: false, activo: true
+    };
+    $('proy-editor-titulo').textContent = id != null ? 'Editar: ' + p.nombre : 'Nuevo proyecto';
+    ['nombre', 'id', 'inmobiliaria', 'comuna', 'uf', 'entrega', 'm2', 'etiqueta', 'resumen', 'enlace'].forEach(function (k) { f.elements[k].value = p[k] == null ? '' : p[k]; });
+    f.elements.id.readOnly = id != null;
+    f.elements.descripcion.value = (p.descripcion || []).join('\n\n');
+    f.elements.datos.value = (p.datos || []).map(function (d) { return d[0] + ': ' + d[1]; }).join('\n');
+    f.elements.fotos.value = (p.fotos || []).map(function (x) { return x.src + (x.alt ? ' | ' + x.alt : ''); }).join('\n');
     f.querySelectorAll('input[name="dorm"]').forEach(function (c) { c.checked = (p.dorm || []).indexOf(Number(c.value)) >= 0; });
+    f.querySelectorAll('input[name="sitios"]').forEach(function (c) { c.checked = (p.sitios || []).indexOf(c.value) >= 0; });
     f.elements.destacado.checked = !!p.destacado;
     f.elements.ejemplo.checked = !!p.ejemplo;
-    $('proy-foto-prev').src = p.foto ? fotoUrl(p.foto) : '';
+    f.elements.activo.checked = p.activo !== false;
+    var f0 = (p.fotos || [])[0];
+    $('proy-foto-prev').src = f0 ? fotoUrl(f0.src) : '';
     $('proy-error').hidden = true;
     f.hidden = false;
     f.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -251,160 +374,245 @@
   function guardarProyecto(e) {
     e.preventDefault();
     var f = $('proy-editor'), m = '';
-    var dorm = Array.prototype.filter.call(f.querySelectorAll('input[name="dorm"]'), function (c) { return c.checked; }).map(function (c) { return Number(c.value); });
-    var foto = f.elements.foto.value.trim();
+    var marcados = function (name) { return Array.prototype.filter.call(f.querySelectorAll('input[name="' + name + '"]'), function (c) { return c.checked; }).map(function (c) { return c.value; }); };
+    var dorm = marcados('dorm').map(Number), sitios = marcados('sitios');
+    var fotos = parsearFotos(f.elements.fotos.value);
+    var textos = ['nombre', 'inmobiliaria', 'comuna', 'm2', 'etiqueta', 'resumen', 'descripcion', 'datos'].map(function (k) { return f.elements[k].value; }).join('');
     var bad = Array.prototype.find.call(f.querySelectorAll('[required]'), function (x) { return !x.checkValidity(); });
     if (bad) m = 'Revisa el campo "' + bad.closest('label').firstChild.textContent.trim() + '".';
     else if (!dorm.length) m = 'Marca al menos una tipología.';
-    else if (!/^photo-[\w-]+$/.test(foto) && !/^https:\/\/[^\s<>"]+$/.test(foto)) m = 'La foto debe ser un ID de Unsplash (photo-…) o una URL que comience con https://';
-    else if (/[<>]/.test(['nombre', 'inmobiliaria', 'comuna', 'm2', 'alt'].map(function (k) { return f.elements[k].value; }).join(''))) m = 'No uses los caracteres < >';
-    else if ((C.proyectos || []).some(function (p, i) { return p.id === f.elements.id.value && i !== editIndex; })) m = 'Ya existe un proyecto con ese identificador.';
+    else if (!fotos.length || fotos.some(function (x) { return !/^photo-[\w-]+$/.test(x.src) && !/^https:\/\/[^\s<>"]+$/.test(x.src); })) m = 'Cada foto debe ser un ID de Unsplash (photo-…) o una URL que comience con https://';
+    else if (f.elements.enlace.value && !/^https:\/\/[^\s<>"]+$/.test(f.elements.enlace.value.trim())) m = 'La ficha externa debe comenzar con https://';
+    else if (/[<>]/.test(textos)) m = 'No uses los caracteres < >';
+    else if (editId == null && PROY.some(function (p) { return p.id === f.elements.id.value; })) m = 'Ya existe un proyecto con ese identificador.';
     if (m) { $('proy-error').textContent = m; $('proy-error').hidden = false; return; }
-    var p = {
+    var fila = {
       id: f.elements.id.value, nombre: f.elements.nombre.value.trim(), inmobiliaria: f.elements.inmobiliaria.value.trim(),
       comuna: f.elements.comuna.value.trim(), uf: Number(f.elements.uf.value), entrega: f.elements.entrega.value, dorm: dorm,
-      m2: f.elements.m2.value.trim(), destacado: f.elements.destacado.checked, ejemplo: f.elements.ejemplo.checked,
-      foto: foto, alt: f.elements.alt.value.trim()
+      m2: f.elements.m2.value.trim(), etiqueta: f.elements.etiqueta.value.trim(), resumen: f.elements.resumen.value.trim(),
+      descripcion: f.elements.descripcion.value.split(/\n\s*\n/).map(function (t) { return t.replace(/\s+/g, ' ').trim(); }).filter(Boolean),
+      datos: parsearDatos(f.elements.datos.value), fotos: fotos, enlace: f.elements.enlace.value.trim(), sitios: sitios,
+      destacado: f.elements.destacado.checked, ejemplo: f.elements.ejemplo.checked, activo: f.elements.activo.checked,
+      orden: editId != null ? PROY.find(function (p) { return p.id === editId; }).orden : PROY.reduce(function (mx, p) { return Math.max(mx, p.orden); }, -1) + 1
     };
-    C.proyectos = C.proyectos || [];
-    if (editIndex >= 0) C.proyectos[editIndex] = p; else C.proyectos.push(p);
-    guardarBorrador(); listarProyectos();
-    f.hidden = true;
-    toast('Proyecto guardado en el borrador');
+    var b = $('proy-guardar'); b.disabled = true; b.textContent = 'Guardando…';
+    sb.from('web_proyectos').upsert(fila).then(function (r) {
+      b.disabled = false; b.textContent = 'Guardar en la base';
+      if (r.error) { $('proy-error').textContent = errorDe(r, 'guardar el proyecto'); $('proy-error').hidden = false; return; }
+      f.hidden = true;
+      toast('Proyecto guardado');
+      pedirRebuild();
+      return cargarProyectos();
+    });
+  }
+  function borrarProyecto(p) {
+    if (!confirm('¿Eliminar "' + p.nombre + '" de ambas webs? Si solo quieres ocultarlo, edítalo y desmarca "Activo".')) return;
+    sb.from('web_proyectos').delete().eq('id', p.id).then(function (r) {
+      if (r.error) return toast(errorDe(r, 'eliminar el proyecto'));
+      toast('Proyecto eliminado');
+      pedirRebuild();
+      cargarProyectos();
+    });
+  }
+  function intercambiar(a, b) {
+    var oa = a.orden, ob = b.orden;
+    if (oa === ob) { ob = oa + 1; }
+    Promise.all([
+      sb.from('web_proyectos').update({ orden: ob }).eq('id', a.id),
+      sb.from('web_proyectos').update({ orden: oa }).eq('id', b.id)
+    ]).then(function (rs) {
+      var err = rs.find(function (r) { return r.error; });
+      if (err) return toast(errorDe(err, 'reordenar'));
+      pedirRebuild();
+      cargarProyectos();
+    });
   }
 
-  // ── Asesores ──
-  var CAMPOS_ASESOR = [
-    ['nombre', 'Nombre', 'text'], ['cargo', 'Cargo', 'text'], ['whatsapp', 'WhatsApp', 'whatsapp'], ['telefono', 'Teléfono visible', 'text'],
-    ['instagram', 'Instagram (URL)', 'url'], ['tiktok', 'TikTok (URL)', 'url'], ['linkedin', 'LinkedIn (URL)', 'url'], ['facebook', 'Facebook (URL)', 'url'],
-    ['foto', 'Foto principal (URL)', 'url'], ['fotoTrabajo', 'Foto trabajando (URL)', 'url'], ['fotoLlamada', 'Foto en llamada (URL)', 'url']
-  ];
-  function listarAsesores() {
-    $('panel-asesores').innerHTML = '<h2>Asesores</h2><p>Datos de las páginas personales de los asesores (por ejemplo marcela/). Los clientes que llegan desde esas páginas quedan atribuidos al asesor.</p>' +
-      (C.asesores || []).map(function (a, i) {
-        return '<div class="asesor-card"><div class="asesor-card__head"><strong>' + esc(a.nombre) + '</strong> <span class="adm-hint">· id: ' + esc(a.id) + '</span></div>' +
-          '<div class="adm-grid">' + CAMPOS_ASESOR.map(function (c) { return campoHTML(['asesores.' + i + '.' + c[0], c[1], c[2]]); }).join('') + '</div></div>';
-      }).join('');
-  }
-
-  // ── Historial (solo conectado) ──
-  // ── Postulantes a broker (tabla imobu_leads; los clientes van a Brouk, ver api/formulario.js) ──
-  var ESTADOS = ['Nuevo', 'Contactado', 'Entrevista', 'Aceptado', 'Activo', 'Descartado'];
-  function construirPostulantes() {
-    var p = nuevoPanel('postulantes');
-    p.innerHTML = '<h2>Postulantes a broker</h2><p>Llegan desde los formularios "Sé broker" y de registro al programa. Cambia el estado y escribe notas; se guardan solos. Al aceptar a alguien, créalo como asesor en brouk.app.</p>' +
-      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th>Fecha</th><th>Postulante</th><th class="col-ocultable">Perfil</th><th>Estado</th><th class="col-ocultable">Notas</th></tr></thead><tbody id="post-list"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>';
+  // ════════════════════ FORMULARIOS (web_leads) ════════════════════
+  var ESTADOS = ['Nuevo', 'Contactado', 'Reunion', 'Entrevista', 'Aceptado', 'Cliente', 'Activo', 'Descartado'];
+  var LEADS = [];
+  var TIPOS = { contacto: 'Contacto', evaluacion: 'Evaluación', registro: 'Registro', 'registro-asesor': 'Registro asesor', 'postulacion-broker': 'Postulación broker' };
+  function construirLeads() {
+    var p = nuevoPanel('leads');
+    p.innerHTML = '<h2>Formularios recibidos</h2><p>Todo lo que llega desde imobu.cl y mdiaz.cl: contactos, evaluaciones de perfil, registros y postulantes a broker. Cambia el estado y escribe notas; se guardan solos.</p>' +
+      '<div class="adm-filtros">' +
+        '<label class="field">Web<select id="lead-f-sitio"><option value="">Todas</option>' + IDS_SITIOS.map(function (id) { return '<option value="' + id + '">' + esc(SITIOS[id].nombre) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="field">Tipo<select id="lead-f-tipo"><option value="">Todos</option></select></label>' +
+        '<label class="field">Estado<select id="lead-f-estado"><option value="">Todos</option>' + ESTADOS.map(function (e) { return '<option>' + e + '</option>'; }).join('') + '</select></label>' +
+        '<button type="button" class="btn btn--outline btn--sm" id="lead-recargar">Actualizar</button>' +
+      '</div>' +
+      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th>Fecha</th><th>Web · Tipo</th><th>Persona</th><th class="col-ocultable">Resumen</th><th>Estado</th><th class="col-ocultable">Notas</th><th></th></tr></thead><tbody id="lead-list"><tr><td colspan="7">Cargando…</td></tr></tbody></table></div>';
     p.addEventListener('change', function (e) {
+      if (e.target.closest('.adm-filtros')) return listarLeads();
       var el = e.target.closest('[data-lead]');
       if (!el) return;
       var cambio = {};
       cambio[el.getAttribute('data-campo')] = el.value.trim();
-      sb.from('imobu_leads').update(cambio).eq('id', Number(el.getAttribute('data-lead'))).then(function (r) {
-        toast(r.error ? 'No se pudo guardar el cambio' : 'Guardado');
+      sb.from('web_leads').update(cambio).eq('id', Number(el.getAttribute('data-lead'))).then(function (r) {
+        toast(r.error ? errorDe(r, 'guardar el cambio') : 'Guardado');
       });
     });
+    p.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-ver]');
+      if (!b) return;
+      var tr = $('lead-det-' + b.getAttribute('data-ver'));
+      tr.hidden = !tr.hidden;
+      b.textContent = tr.hidden ? 'Ver' : 'Cerrar';
+    });
+    $('lead-recargar').addEventListener('click', cargarLeads);
   }
-  function cargarPostulantes() {
+  function cargarLeads() {
     if (!sb) return;
-    sb.from('imobu_leads').select('id, recibido, tipo, asesor, estado, notas, datos')
-      .in('tipo', ['postulacion-broker', 'registro-asesor']).order('id', { ascending: false }).limit(200).then(function (r) {
-      var tb = $('post-list');
-      if (r.error) { tb.innerHTML = '<tr><td colspan="5">No se pudieron cargar los postulantes.</td></tr>'; return; }
-      tb.innerHTML = r.data.length ? r.data.map(function (l) {
-        var d = l.datos || {};
-        var perfil = l.tipo === 'registro-asesor' ? 'Registro de interés · ' + (d.interes || '') : [d.comuna, d.experiencia, d.disponibilidad].filter(Boolean).join(' · ');
-        return '<tr><td>' + esc(fecha(l.recibido)) + '</td>' +
-          '<td><strong>' + esc(d.nombre || '—') + '</strong><br><span class="adm-hint">' + esc(d.telefono || '') + (d.email ? ' · ' + esc(d.email) : '') + '</span></td>' +
-          '<td class="col-ocultable">' + esc(perfil) + (d.linkedin ? ' · <a href="' + esc(d.linkedin) + '" target="_blank" rel="noopener">LinkedIn</a>' : '') + '</td>' +
-          '<td><select data-lead="' + l.id + '" data-campo="estado">' + ESTADOS.map(function (e) { return '<option' + (e === l.estado ? ' selected' : '') + '>' + e + '</option>'; }).join('') + '</select></td>' +
-          '<td class="col-ocultable"><input data-lead="' + l.id + '" data-campo="notas" maxlength="1000" value="' + esc(l.notas || '') + '" placeholder="Notas"></td></tr>';
-      }).join('') : '<tr><td colspan="5">Aún no hay postulantes.</td></tr>';
+    sb.from('web_leads').select('id, recibido, sitio, tipo, pagina, asesor, estado, notas, datos').order('id', { ascending: false }).limit(300).then(function (r) {
+      if (r.error) { $('lead-list').innerHTML = '<tr><td colspan="7">No se pudieron cargar los formularios.</td></tr>'; return; }
+      LEADS = r.data || [];
+      var sel = $('lead-f-tipo'), actual = sel.value;
+      var tipos = LEADS.map(function (l) { return l.tipo; }).filter(function (t, i, a) { return a.indexOf(t) === i; }).sort();
+      sel.innerHTML = '<option value="">Todos</option>' + tipos.map(function (t) { return '<option value="' + esc(t) + '"' + (t === actual ? ' selected' : '') + '>' + esc(TIPOS[t] || t) + '</option>'; }).join('');
+      listarLeads();
     });
   }
+  function resumenLead(l) {
+    var d = l.datos || {}, partes = [];
+    if (d.interes) partes.push(d.interes);
+    if (d.prediagnostico && d.prediagnostico.status) partes.push('Pre-diagnóstico: ' + d.prediagnostico.status + (d.prediagnostico.precioUF ? ' · hasta ' + ufFmt(d.prediagnostico.precioUF) : ''));
+    if (d.proyecto) partes.push('Proyecto: ' + d.proyecto);
+    if (d.comuna && l.tipo === 'postulacion-broker') partes.push([d.comuna, d.experiencia, d.disponibilidad].filter(Boolean).join(' · '));
+    if (d.renta && !d.prediagnostico) partes.push('Renta ' + d.renta);
+    if (l.asesor) partes.push('Asesor: ' + l.asesor);
+    return partes.join(' · ');
+  }
+  function listarLeads() {
+    var fs = $('lead-f-sitio').value, ft = $('lead-f-tipo').value, fe = $('lead-f-estado').value;
+    var lista = LEADS.filter(function (l) { return (!fs || l.sitio === fs) && (!ft || l.tipo === ft) && (!fe || l.estado === fe); });
+    var tb = $('lead-list');
+    tb.innerHTML = lista.length ? lista.map(function (l) {
+      var d = l.datos || {};
+      var nombre = [d.nombre, d.apellido].filter(Boolean).join(' ') || '—';
+      var detalle = Object.keys(d).map(function (k) {
+        var v = d[k];
+        return '<dt>' + esc(k) + '</dt><dd>' + esc(typeof v === 'object' ? JSON.stringify(v) : v) + '</dd>';
+      }).join('');
+      return '<tr><td>' + esc(fecha(l.recibido)) + '</td>' +
+        '<td><span class="pill ' + (SITIOS[l.sitio] ? SITIOS[l.sitio].pill : '') + '">' + esc(SITIOS[l.sitio] ? SITIOS[l.sitio].nombre : l.sitio) + '</span><br><span class="adm-hint">' + esc(TIPOS[l.tipo] || l.tipo) + (l.pagina ? ' · ' + esc(l.pagina) : '') + '</span></td>' +
+        '<td><strong>' + esc(nombre) + '</strong><br><span class="adm-hint">' + esc(d.telefono || '') + (d.email ? ' · ' + esc(d.email) : '') + '</span></td>' +
+        '<td class="col-ocultable">' + esc(resumenLead(l)) + '</td>' +
+        '<td><select data-lead="' + l.id + '" data-campo="estado">' + ESTADOS.map(function (e) { return '<option' + (e === l.estado ? ' selected' : '') + '>' + e + '</option>'; }).join('') + '</select></td>' +
+        '<td class="col-ocultable"><input type="text" data-lead="' + l.id + '" data-campo="notas" maxlength="1000" value="' + esc(l.notas || '') + '" placeholder="Notas"></td>' +
+        '<td><button type="button" class="mini-btn" data-ver="' + l.id + '">Ver</button></td></tr>' +
+        '<tr id="lead-det-' + l.id + '" hidden><td colspan="7"><div class="lead-detalle"><dl>' + detalle + '</dl></div></td></tr>';
+    }).join('') : '<tr><td colspan="7">No hay formularios con esos filtros.</td></tr>';
+  }
 
+  // ════════════════════ HISTORIAL (web_historial) ════════════════════
   function construirHistorial() {
     var p = nuevoPanel('historial');
-    p.innerHTML = '<h2>Historial de cambios</h2><p>Cada publicación queda registrada con su autor. Puedes cargar una versión anterior como borrador, revisarla y volver a publicarla.</p>' +
-      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th>Fecha</th><th>Publicado por</th><th></th></tr></thead><tbody id="hist-list"><tr><td colspan="3">Cargando…</td></tr></tbody></table></div>';
+    p.innerHTML = '<h2>Historial de cambios</h2><p>Cada cambio en proyectos y parámetros queda registrado con su autor. Puedes restaurar una versión anterior: un proyecto vuelve a la base tal como estaba; los parámetros de una web se cargan como borrador para revisarlos y publicarlos.</p>' +
+      '<div style="overflow-x: auto"><table class="tabla"><thead><tr><th>Fecha</th><th>Qué</th><th class="col-ocultable">Acción</th><th>Por</th><th></th></tr></thead><tbody id="hist-list"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>';
     p.addEventListener('click', function (e) {
       var b = e.target.closest('[data-hist]');
       if (!b) return;
-      if (!confirm('¿Cargar esta versión como borrador? Podrás revisarla antes de publicar.')) return;
-      sb.from('imobu_config_historial').select('data').eq('id', Number(b.getAttribute('data-hist'))).single().then(function (r) {
-        if (r.error || !r.data) return toast('No se pudo cargar esa versión');
-        C = r.data.data; reconstruir(); mostrar('general');
-        toast('Versión cargada como borrador. Revisa y presiona "Guardar y publicar".');
+      sb.from('web_historial').select('tabla, clave, data').eq('id', Number(b.getAttribute('data-hist'))).single().then(function (r) {
+        if (r.error || !r.data || !r.data.data) return toast('No se pudo cargar esa versión');
+        var h = r.data;
+        if (h.tabla === 'web_sitios') {
+          if (!SITIOS[h.clave]) return toast('Sitio desconocido');
+          S[h.clave] = h.data.config || {};
+          pintarSitios(); mostrar(h.clave);
+          toast('Versión cargada como borrador. Revisa y presiona "Guardar y publicar".');
+          return;
+        }
+        if (h.tabla === 'web_proyectos') {
+          if (!confirm('¿Restaurar el proyecto "' + (h.data.nombre || h.clave) + '" tal como estaba en esa fecha?')) return;
+          var fila = copiar(h.data);
+          delete fila.creado; delete fila.actualizado; delete fila.actualizado_por;
+          sb.from('web_proyectos').upsert(fila).then(function (q) {
+            if (q.error) return toast(errorDe(q, 'restaurar el proyecto'));
+            toast('Proyecto restaurado'); pedirRebuild(); cargarProyectos(); cargarHistorial();
+          });
+        }
       });
     });
   }
   function cargarHistorial() {
     if (!sb) return;
-    sb.from('imobu_config_historial').select('id, cambiado, cambiado_por').order('id', { ascending: false }).limit(25).then(function (r) {
+    sb.from('web_historial').select('id, tabla, clave, accion, cambiado, cambiado_por').order('id', { ascending: false }).limit(60).then(function (r) {
       var tb = $('hist-list');
-      if (r.error) { tb.innerHTML = '<tr><td colspan="3">No se pudo cargar el historial.</td></tr>'; return; }
-      tb.innerHTML = r.data.length ? r.data.map(function (h, i) {
-        return '<tr><td>' + esc(fecha(h.cambiado)) + (i === 0 ? ' <span class="pill pill--dest">Actual</span>' : '') + '</td><td>' + esc(h.cambiado_por || '—') + '</td>' +
-          '<td><div class="acciones">' + (i === 0 ? '' : '<button type="button" class="mini-btn" data-hist="' + h.id + '">Restaurar</button>') + '</div></td></tr>';
-      }).join('') : '<tr><td colspan="3">Aún no hay publicaciones.</td></tr>';
+      if (r.error) { tb.innerHTML = '<tr><td colspan="5">No se pudo cargar el historial.</td></tr>'; return; }
+      var ACC = { insert: 'Creado', update: 'Modificado', delete: 'Eliminado' };
+      tb.innerHTML = r.data.length ? r.data.map(function (h) {
+        var que = h.tabla === 'web_sitios' ? 'Parámetros de ' + (SITIOS[h.clave] ? SITIOS[h.clave].nombre : h.clave) : 'Proyecto ' + h.clave;
+        return '<tr><td>' + esc(fecha(h.cambiado)) + '</td><td>' + esc(que) + '</td><td class="col-ocultable">' + esc(ACC[h.accion] || h.accion) + '</td><td>' + esc(h.cambiado_por || '—') + '</td>' +
+          '<td><div class="acciones"><button type="button" class="mini-btn" data-hist="' + h.id + '">Restaurar</button></div></td></tr>';
+      }).join('') : '<tr><td colspan="5">Aún no hay cambios registrados.</td></tr>';
     });
   }
 
-  // ── Publicar / respaldo ──
-  function construirPublicar() {
-    var p = nuevoPanel('publicar');
-    p.innerHTML = ONLINE
-      ? '<h2>Respaldo</h2><p>Los cambios se publican con el botón <strong>Guardar y publicar</strong> y se ven en el sitio en menos de un minuto. Aquí puedes descargar un respaldo o cargar uno guardado.</p>' +
-        '<div class="actions"><button type="button" class="btn btn--outline btn--sm" id="btn-descargar-2">Descargar respaldo (config.js)</button><button type="button" class="btn btn--outline btn--sm" id="btn-cargar">Cargar un respaldo</button><button type="button" class="btn btn--outline btn--sm" id="btn-descartar">Descartar borrador</button></div>'
-      : '<h2>Cómo publicar los cambios</h2><p>En modo local este panel no modifica el sitio publicado: genera el archivo de parámetros.</p>' +
-        '<div class="adm-help"><strong>Pasos</strong><ol><li>Edita lo que necesites (se guarda como borrador en este navegador).</li><li>Presiona <strong>Vista previa</strong> para revisar el sitio con tus cambios.</li><li>Presiona <strong>Descargar config.js</strong>.</li><li>Reemplaza el contenido de <code>src/data/config.json</code> en el repositorio (solo el JSON, sin <code>var IMOBU_CONFIG =</code>) y vuelve a publicar.</li></ol></div>' +
-        '<div class="actions" style="margin-top: 24px"><button type="button" class="btn btn--outline btn--sm" id="btn-cargar">Cargar un config.js guardado</button><button type="button" class="btn btn--outline btn--sm" id="btn-descartar">Descartar borrador</button></div>';
-    $('btn-cargar').addEventListener('click', function () { $('file-input').click(); });
+  // ════════════════════ RESPALDO ════════════════════
+  function construirRespaldo() {
+    var p = nuevoPanel('respaldo');
+    p.innerHTML = '<h2>Respaldo</h2><p>Descarga una copia de los proyectos y los parámetros de ambas webs (JSON). Guárdala antes de hacer cambios grandes.</p>' +
+      '<div class="actions"><button type="button" class="btn btn--outline btn--sm" id="btn-descargar">Descargar respaldo</button><button type="button" class="btn btn--outline btn--sm" id="btn-descartar">Descartar borrador de parámetros</button></div>' +
+      '<div class="adm-help"><strong>Cómo se publica cada cosa</strong><ol><li><strong>Proyectos:</strong> se guardan en la base al instante. imobu.cl se regenera sola (1 a 2 minutos) y mdiaz.cl los muestra en menos de un minuto.</li><li><strong>Parámetros de cada web:</strong> se editan como borrador y se publican con "Guardar y publicar".</li><li><strong>Formularios:</strong> llegan solos desde ambas webs; aquí se gestionan estado y notas.</li></ol></div>';
+    $('btn-descargar').addEventListener('click', function () {
+      var texto = JSON.stringify({ generado: new Date().toISOString(), sitios: PUB, proyectos: PROY }, null, 2);
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([texto], { type: 'application/json' }));
+      a.download = 'respaldo-webs-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      toast('Respaldo descargado');
+    });
     $('btn-descartar').addEventListener('click', function () {
-      if (!confirm('¿Descartar todos los cambios no publicados?')) return;
-      C = copiar(PUBLICADO);
-      try { localStorage.removeItem('imobu-config-borrador'); } catch (e) { /* sin almacenamiento */ }
-      reconstruir(); toast('Borrador descartado');
+      if (!confirm('¿Descartar todos los cambios de parámetros no publicados?')) return;
+      S = copiar(PUB);
+      try { localStorage.removeItem('web-intranet-borrador'); } catch (e) { /* sin almacenamiento */ }
+      pintarSitios(); toast('Borrador descartado');
     });
-    if ($('btn-descargar-2')) $('btn-descargar-2').addEventListener('click', descargar);
   }
 
+  // ════════════════════ PUBLICAR PARÁMETROS / REGENERAR IMOBU ════════════════════
   function hayErrores() {
     var bad = document.querySelector('.field.is-bad');
     if (bad) { mostrar(bad.closest('.adm-panel').id.replace('panel-', '')); bad.querySelector('input').focus(); toast('Corrige los campos marcados antes de continuar'); return true; }
     return false;
   }
-  function descargar() {
-    if (hayErrores()) return;
-    var texto = '/* IMOBU — parámetros del sitio. Generado desde la intranet el ' + new Date().toLocaleString('es-CL') + '.\n' +
-      '   Proyectos con "ejemplo": true son de EJEMPLO: reemplazar por reales antes de publicar. */\n' +
-      'var IMOBU_CONFIG = ' + JSON.stringify(C, null, 2) + ';\n';
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([texto], { type: 'text/javascript' }));
-    a.download = 'config.js';
-    document.body.appendChild(a); a.click(); a.remove();
-    toast('config.js descargado');
-  }
   function publicar() {
     if (hayErrores()) return;
-    if (JSON.stringify(C) === JSON.stringify(PUBLICADO)) return toast('No hay cambios para publicar');
-    if (!confirm('¿Publicar los cambios en el sitio? Se verán en menos de un minuto.')) return;
+    var cambiados = IDS_SITIOS.filter(function (id) { return !igual(S[id], PUB[id]); });
+    if (!cambiados.length) return toast('No hay cambios de parámetros para publicar');
+    if (!confirm('¿Publicar los parámetros de ' + cambiados.map(function (id) { return SITIOS[id].nombre; }).join(' y ') + '? Se verán en el sitio en menos de un minuto.')) return;
     var b = $('btn-publicar'); b.disabled = true; b.textContent = 'Publicando…';
-    sb.from('imobu_config').upsert({ id: 1, data: C }).then(function (r) {
+    Promise.all(cambiados.map(function (id) {
+      return sb.from('web_sitios').upsert({ id: id, nombre: SITIOS[id].nombre, url: SITIOS[id].url, config: S[id] }).then(function (r) { return { id: id, r: r }; });
+    })).then(function (rs) {
       b.disabled = false; b.textContent = 'Guardar y publicar';
-      if (r.error) return toast(r.error.code === '42501' ? 'Tu cuenta no tiene permiso para publicar.' : 'No se pudo publicar. Revisa tu conexión o vuelve a ingresar.');
-      PUBLICADO = copiar(C);
-      try { localStorage.removeItem('imobu-config-borrador'); } catch (e) { /* sin almacenamiento */ }
+      var fallo = rs.find(function (x) { return x.r.error; });
+      rs.forEach(function (x) { if (!x.r.error) PUB[x.id] = copiar(S[x.id]); });
       guardarBorrador();
-      toast('Cambios publicados');
-      // Las fichas de proyecto se generan en build: pedimos un redeploy (ver api/rebuild.js)
+      if (fallo) return toast(errorDe(fallo.r, 'publicar'));
+      try { localStorage.removeItem('web-intranet-borrador'); } catch (e) { /* sin almacenamiento */ }
+      toast('Parámetros publicados');
+      if (cambiados.indexOf('imobu') >= 0) pedirRebuild();
+    });
+  }
+  // Las fichas de proyecto de imobu.cl se generan en build: tras un cambio pedimos un redeploy (api/rebuild.js).
+  // Se agrupa en 3 s para no lanzar un build por cada clic.
+  var rebuildTimer = null;
+  function pedirRebuild() {
+    clearTimeout(rebuildTimer);
+    rebuildTimer = setTimeout(function () {
       sb.auth.getSession().then(function (q) {
         var token = q.data.session && q.data.session.access_token;
         if (!token) return;
         fetch('/api/rebuild', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).then(function (r) { return r.json(); })
-          .then(function (j) { if (j.ok) toast('Sitio regenerándose: los cambios se ven en 1 a 2 minutos'); })
-          .catch(function () { /* sin hook: los textos y precios igual se actualizan vía /api/config */ });
+          .then(function (j) {
+            if (!j.ok) return;
+            var av = $('aviso-rebuild'); av.hidden = false;
+            setTimeout(function () { av.hidden = true; }, 120000);
+          })
+          .catch(function () { /* sin hook: los textos, precios y el catálogo igual se actualizan vía /api/config */ });
       });
-    });
+    }, 3000);
   }
 
   $('btn-preview').addEventListener('click', function () {
@@ -412,45 +620,22 @@
     guardarBorrador();
     window.open('index.html?vista-previa=1', '_blank', 'noopener');
   });
-  $('btn-descargar').addEventListener('click', descargar);
-  $('btn-publicar').addEventListener('click', function () { publicar(); });
-  $('file-input').addEventListener('change', function () {
-    var file = this.files[0];
-    if (!file) return;
-    if (file.size > 500000) { toast('El archivo es demasiado grande'); return; }
-    var r = new FileReader();
-    r.onload = function () {
-      try {
-        var t = String(r.result);
-        var obj = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
-        if (!obj.sitio || !Array.isArray(obj.proyectos)) throw new Error('formato');
-        C = obj; reconstruir(); toast('Archivo cargado como borrador');
-      } catch (e) { toast('No se pudo leer el archivo: ¿es un config.js del sitio?'); }
-    };
-    r.readAsText(file);
-    this.value = '';
-  });
+  $('btn-publicar').addEventListener('click', publicar);
 
   function abrirPanel() {
     var borrador = null;
-    try { borrador = JSON.parse(localStorage.getItem('imobu-config-borrador') || 'null'); } catch (e) { borrador = null; }
-    C = borrador && JSON.stringify(borrador) !== JSON.stringify(PUBLICADO) && confirm('Tienes un borrador sin publicar en este navegador. ¿Quieres retomarlo?')
-      ? borrador : copiar(PUBLICADO);
-    $('aviso-local').hidden = ONLINE;
-    $('btn-publicar').hidden = !ONLINE;
-    $('btn-descargar').hidden = ONLINE;
+    try { borrador = JSON.parse(localStorage.getItem('web-intranet-borrador') || 'null'); } catch (e) { borrador = null; }
+    S = borrador && borrador.imobu && borrador.mdiaz && !igual(borrador, PUB) && confirm('Tienes un borrador de parámetros sin publicar en este navegador. ¿Quieres retomarlo?')
+      ? borrador : copiar(PUB);
     vista('panel');
     construir();
     guardarBorrador();
   }
 
-  // ════════════════════ MODO LOCAL ════════════════════
+  // ════════════════════ SIN CONEXIÓN ════════════════════
   if (!ONLINE) {
-    // Sin conexión, el panel solo se abre desde el computador (archivo local o servidor local),
-    // nunca desde el sitio publicado: ahí muestra que la intranet aún no está activa.
-    if (location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) { abrirPanel(); return; }
     vista('login');
-    msg('login-error', 'La intranet aún no está activada. Contacta al administrador del sitio.');
+    msg('login-error', 'La intranet aún no está conectada a la base de datos. Completa js/conexion.js con la URL y la clave pública del proyecto Supabase (ver SEGURIDAD.md).');
     Array.prototype.forEach.call($('form-login').elements, function (el) { el.disabled = true; });
     return;
   }
@@ -470,18 +655,26 @@
   }
 
   function entrar(session) {
-    return sb.rpc('imobu_es_admin').then(function (r) {
+    return sb.rpc('web_es_admin').then(function (r) {
       if (r.error || r.data !== true) {
         sb.auth.signOut();
         vista('login');
         msg('login-error', 'Tu cuenta no tiene acceso a la intranet. Pide acceso a un administrador.');
         return;
       }
-      return sb.from('imobu_config').select('data').eq('id', 1).maybeSingle().then(function (q) {
-        if (q.data && q.data.data) PUBLICADO = q.data.data;
+      return Promise.all([
+        sb.from('web_sitios').select('id, config'),
+        sb.from('web_proyectos').select('*').order('orden', { ascending: true }).order('nombre', { ascending: true })
+      ]).then(function (rs) {
+        if (rs[0].error || rs[1].error) { msg('login-error', 'No se pudieron cargar los datos. ¿Se ejecutó supabase/web.sql en el proyecto?'); vista('login'); return; }
+        PUB = {};
+        IDS_SITIOS.forEach(function (id) { PUB[id] = {}; });
+        (rs[0].data || []).forEach(function (s) { if (SITIOS[s.id]) PUB[s.id] = s.config || {}; });
+        PROY = rs[1].data || [];
         $('adm-email').textContent = session.user.email;
         $('adm-user').hidden = false;
         abrirPanel();
+        listarProyectos();
         vigilarInactividad();
       });
     });
@@ -558,7 +751,7 @@
   cargarSupabase().then(function () {
     var vieneDeEnlace = /type=(invite|recovery)/.test(location.hash);
     sb = window.supabase.createClient(CX.supabaseUrl, CX.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'imobu-intranet' }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'web-intranet' }
     });
     sb.auth.onAuthStateChange(function (evento) {
       if (evento === 'PASSWORD_RECOVERY') vista('clave');

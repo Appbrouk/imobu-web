@@ -9,10 +9,11 @@
 //   NOTIFY_EMAIL         Correo que recibe los formularios. Ej: contacto@imobu.cl
 //   FROM_EMAIL           Remitente verificado en Resend. Ej: web@imobu.cl
 //   FORWARD_WEBHOOK_URL  Endpoint de brouk.app que recibe los CLIENTES (contacto y evaluación); los
-//                        formularios de brokers no se reenvían, quedan solo en imobu_leads (opcional)
+//                        formularios de brokers no se reenvían, quedan solo en web_leads (opcional)
 //   FORWARD_WEBHOOK_TOKEN  Token que Brouk emite para ese endpoint; va en Authorization: Bearer (opcional)
-//   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY  Guardan cada lead en la tabla imobu_leads (ver supabase/leads.sql).
-//                        La service_role es SECRETA: solo aquí, nunca en js/conexion.js ni en la intranet.
+//   SUPABASE_URL + SUPABASE_ANON_KEY  Guardan cada lead en la tabla compartida web_leads (ver supabase/web.sql),
+//                        de donde los lee la intranet. La clave anon solo puede INSERTAR leads (lo impone la
+//                        base), por eso no hace falta ninguna service_role en este proyecto.
 // ─────────────────────────────────────────────────────────────
 
 import { randomUUID } from 'node:crypto';
@@ -108,12 +109,12 @@ async function verificarTurnstile(token, ip) {
 // Guarda el lead y avisa. Falla solo si NINGÚN destino lo recibió (si el correo cae, queda en la base).
 async function notificar(tipo, datos, pagina) {
   const tareas = [];
-  const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const sbKey = process.env.SUPABASE_ANON_KEY;
   if (process.env.SUPABASE_URL && sbKey) {
-    tareas.push(fetch(`${process.env.SUPABASE_URL}/rest/v1/imobu_leads`, {
+    tareas.push(fetch(`${process.env.SUPABASE_URL.replace(/\/+$/, '')}/rest/v1/web_leads`, {
       method: 'POST',
       headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ tipo, pagina, asesor: datos.asesor || null, datos })
+      body: JSON.stringify({ sitio: 'imobu', tipo, pagina, asesor: datos.asesor || null, datos })
     }));
   }
   if (process.env.RESEND_API_KEY && process.env.NOTIFY_EMAIL && process.env.FROM_EMAIL) {

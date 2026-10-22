@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Intranet — IMOBU</title>
+<title>Intranet — IMOBU y MD Invest</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
@@ -74,6 +74,17 @@
   .dorms { display: flex; flex-wrap: wrap; gap: 8px; }
   .asesor-card { border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
   .asesor-card__head { margin-bottom: 14px; }
+  .sitios-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill--imobu { background: var(--pink-soft); color: var(--pink-dark); }
+  .pill--mdiaz { background: #F3E8EE; color: #5A2340; }
+  .pill--oculto { background: #EEE; color: #666; }
+  .adm-filtros { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; align-items: end; }
+  .adm-filtros .field { min-width: 160px; }
+  .lead-detalle { background: var(--bg); border-radius: 12px; padding: 12px 16px; font-size: 13px; }
+  .lead-detalle dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+  .lead-detalle dt { font-weight: 700; color: var(--muted); }
+  .lead-detalle dd { margin: 0; word-break: break-word; }
+  .tabla select, .tabla input[type="text"] { font-family: inherit; font-size: 13px; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 8px; min-width: 120px; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 100; box-shadow: var(--shadow-lg); max-width: calc(100% - 32px); }
   @media (max-width: 900px) {
     .adm { grid-template-columns: 1fr; }
@@ -91,7 +102,7 @@
   <form class="login__card" id="form-login" novalidate>
     <img src="img/logo-imobu.png" alt="IMOBU Asesoría Inmobiliaria" width="120" height="44">
     <h1 id="titulo-login">Intranet</h1>
-    <p>Acceso para el equipo IMOBU. Ingresa con tu correo y tu clave.</p>
+    <p>Panel compartido de <strong>imobu.cl</strong> y <strong>mdiaz.cl</strong>: proyectos, formularios recibidos y parámetros de ambas webs. Ingresa con tu correo y tu clave.</p>
     <div class="login__msg login__msg--error" id="login-error" role="alert" hidden></div>
     <div class="login__msg login__msg--ok" id="login-ok" role="status" hidden></div>
     <label class="field">Correo<input type="email" name="email" autocomplete="username" maxlength="120" required></label>
@@ -123,16 +134,15 @@
   <header class="adm-top">
     <div class="wrap adm-top__in">
       <img src="img/logo-imobu.png" alt="IMOBU" width="82" height="30">
-      <h1>Intranet · Parámetros del sitio</h1>
-      <span class="adm-estado" id="estado" role="status">Sin cambios</span>
-      <button type="button" class="btn btn--outline btn--sm" id="btn-preview" style="color: #fff; border-color: #fff">Vista previa</button>
-      <button type="button" class="btn btn--primary btn--sm" id="btn-publicar" hidden>Guardar y publicar</button>
-      <button type="button" class="btn btn--primary btn--sm" id="btn-descargar">Descargar config.js</button>
+      <h1>Intranet · IMOBU y MD Invest</h1>
+      <span class="adm-estado" id="estado" role="status">Publicado</span>
+      <button type="button" class="btn btn--outline btn--sm" id="btn-preview" style="color: #fff; border-color: #fff">Vista previa IMOBU</button>
+      <button type="button" class="btn btn--primary btn--sm" id="btn-publicar">Guardar y publicar</button>
       <span class="adm-user" id="adm-user" hidden><span id="adm-email"></span><button type="button" id="btn-salir">Cerrar sesión</button></span>
     </div>
   </header>
-  <div class="adm-modo" id="aviso-local" hidden>
-    <div class="wrap"><strong>Modo local:</strong> la intranet aún no está conectada a la base de datos, así que los cambios no se publican solos. Edita, revisa la vista previa y descarga <code>config.js</code> para subirlo al sitio. Para activar el ingreso con clave y la publicación directa, ver <code>SEGURIDAD.md</code>.</div>
+  <div class="adm-modo" id="aviso-rebuild" hidden>
+    <div class="wrap">Cambios guardados en la base. <strong>imobu.cl se está regenerando</strong> (1 a 2 minutos); mdiaz.cl los muestra en menos de un minuto.</div>
   </div>
   <main class="wrap adm">
     <nav class="adm-nav" role="tablist" aria-label="Secciones" id="tabs"></nav>
@@ -140,10 +150,8 @@
   </main>
 </div>
 
-<input type="file" id="file-input" accept=".js,.json,text/javascript,application/json" hidden>
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="js/config.js"></script>
 <script src="js/conexion.js"></script>
 <script src="js/intranet.js"></script>
 </body>

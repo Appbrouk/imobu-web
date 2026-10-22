@@ -34,35 +34,35 @@ Los formularios piden datos personales y financieros (renta, deudas, DICOM). Por
    - `TURNSTILE_SECRET` = la secret key de Turnstile
    - Para recibir por correo: `RESEND_API_KEY`, `NOTIFY_EMAIL` (ej. `contacto@imobu.cl`) y `FROM_EMAIL` (un remitente verificado en Resend)
    - Para que los clientes (contacto y evaluación) lleguen a brouk.app: `FORWARD_WEBHOOK_URL` y `FORWARD_WEBHOOK_TOKEN`, los entrega el equipo de Brouk. Los postulantes a broker no se reenvían: se gestionan en la pestaña Postulantes de la intranet.
-   - Para guardar cada lead en la base (recomendado: si el correo falla, el dato no se pierde): ejecuta `supabase/leads.sql` después de `intranet.sql` y agrega `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API → service_role). Esta clave es **secreta**: solo en Vercel, nunca en el código. Los leads se leen desde Supabase → Table Editor → `imobu_leads`.
+   - Para guardar cada lead en la base compartida (recomendado: si el correo falla, el dato no se pierde): con `supabase/web.sql` ejecutado, bastan `SUPABASE_URL` y `SUPABASE_ANON_KEY` (las mismas de la intranet). La clave pública solo puede **insertar** en `web_leads`; no hace falta ninguna `service_role`. Los leads se leen en la intranet → Formularios, junto a los de mdiaz.cl.
 4. En la intranet → Formularios: escribe `/api/formulario` como receptor y pega la **site key** de Turnstile. Presiona **Guardar y publicar** (o, en modo local, descarga `config.js` y reemplázalo).
 5. Prueba cada formulario una vez publicado.
 
 Mientras el receptor esté vacío, los formularios funcionan en **modo demostración**: validan y muestran la confirmación, pero no envían nada.
 
-## Intranet (parámetros del sitio con clave)
+## Intranet compartida (IMOBU + MD Invest)
 
-Botón **Intranet** al final de cada página → `intranet.html`.
+Botón **Intranet** al final de cada página → `intranet.html`. Es **una sola intranet para las dos webs** (imobu.cl y mdiaz.cl): proyectos, formularios recibidos y parámetros de cada web, todo en la base compartida (`supabase/web.sql`). El roadmap y el detalle están en `docs/INTRANET-COMPARTIDA.md`.
 
 **Cómo protege**
 - Ingreso real con correo y clave (Supabase Auth): las claves se guardan cifradas y el servidor limita los intentos. Además, la página bloquea un minuto tras 5 intentos fallidos.
-- Solo pueden publicar los correos de la tabla `imobu_admins`, con el correo confirmado. Lo verifica **la base de datos** (reglas RLS), no la página: aunque alguien manipule el navegador, no puede escribir.
+- Solo pueden escribir los correos de la tabla `web_admins`, con el correo confirmado. Lo verifica **la base de datos** (reglas RLS), no la página: aunque alguien manipule el navegador, no puede escribir.
 - Nadie puede autoasignarse como administrador ni borrar los parámetros desde internet.
-- Cada publicación queda en el historial con autor y fecha, y se puede restaurar una versión anterior.
+- Cada cambio (proyectos y parámetros) queda en el historial con autor y fecha, y se puede restaurar.
 - La sesión se cierra sola tras 30 minutos sin actividad. Las claves nuevas deben tener 12+ caracteres con letras y números.
 - La librería de Supabase se carga con versión fija y huella de integridad (SRI).
 
 **Cómo activarla**
-1. En Supabase, abre el SQL Editor y ejecuta `supabase/intranet.sql`.
-2. Agrega a los administradores: `insert into public.imobu_admins (email) values ('correo@imobu.cl');`
+1. En Supabase (proyecto de la organización IMOBU), abre el SQL Editor y ejecuta `supabase/web.sql`.
+2. Agrega a los administradores: `insert into public.web_admins (email) values ('correo@imobu.cl');`
 3. En Authentication → Users → **Invite user**, invita esos mismos correos: recibirán un enlace para crear su clave en la intranet.
 4. En Authentication → Sign In / Providers, **desactiva el registro público** ("Allow new users to sign up") y deja activa la confirmación de correo.
 5. En Authentication → URL Configuration, agrega `https://imobu.cl/intranet.html` como URL de redirección permitida.
-6. Copia la *Project URL* y la *anon / publishable key* en `js/conexion.js` (son públicas por diseño). Nunca uses la `service_role`.
-7. En Vercel agrega las variables `SUPABASE_URL` y `SUPABASE_ANON_KEY` (las mismas) para que `/api/config` entregue los parámetros publicados.
-8. En Vercel → Settings → Git → Deploy Hooks crea un hook para `main` y guárdalo como `VERCEL_DEPLOY_HOOK_URL`: las fichas de proyecto se generan en build, y la intranet pide un redeploy al publicar (`api/rebuild.js`).
+6. Copia la *Project URL* y la *anon / publishable key* en `public/js/conexion.js` (son públicas por diseño). Nunca uses la `service_role`.
+7. En Vercel agrega las variables `SUPABASE_URL` y `SUPABASE_ANON_KEY` (las mismas) en **los dos proyectos** (imobu-web y marcela-inversiones): `/api/config` y `/api/proyectos` entregan los parámetros y el catálogo publicados.
+8. En Vercel (imobu-web) → Settings → Git → Deploy Hooks crea un hook para `main` y guárdalo como `VERCEL_DEPLOY_HOOK_URL`: las fichas de proyecto se generan en build, y la intranet pide un redeploy al cambiar proyectos o parámetros (`api/rebuild.js`).
 
-Mientras `js/conexion.js` esté vacío, la intranet funciona en **modo local**: sin clave, solo genera `config.js` para subirlo a mano (no puede cambiar el sitio publicado).
+Mientras `public/js/conexion.js` esté vacío, la intranet muestra que no está conectada y no deja entrar.
 
 ## Buenas prácticas que dependen del equipo
 
