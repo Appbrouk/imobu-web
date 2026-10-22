@@ -48,7 +48,8 @@ export function proyectoImobu(p) {
 }
 
 // Parámetros publicados + proyectos activos de IMOBU. Devuelve null si la base no está configurada
-// o no responde: quien llama decide el respaldo (src/data/config.json).
+// o no responde: quien llama decide el respaldo (src/data/config.json). Si la base aún no tiene
+// proyectos para IMOBU, no se incluye `proyectos` y se conserva el catálogo de respaldo.
 export async function leerConfigImobu({ url, key, timeout = 5000 } = {}) {
   if (!url || !key) return null;
   const [sitios, proyectos] = await Promise.all([
@@ -57,5 +58,6 @@ export async function leerConfigImobu({ url, key, timeout = 5000 } = {}) {
   ]);
   const config = Array.isArray(sitios) && sitios[0] && sitios[0].config && typeof sitios[0].config === 'object' ? sitios[0].config : null;
   if (!config) return null;
-  return { ...config, proyectos: (Array.isArray(proyectos) ? proyectos : []).map(proyectoImobu) };
+  const lista = (Array.isArray(proyectos) ? proyectos : []).map(proyectoImobu);
+  return lista.length ? { ...config, proyectos: lista } : { ...config };
 }

@@ -30,10 +30,10 @@ repositorio) y **mdiaz.cl** (estático, repositorio `marcela-inversiones`).
 | 3 | Formularios de imobu.cl → `web_leads` con la clave pública (sin service_role) | Listo |
 | 4 | Intranet compartida: proyectos con "mostrar en", formularios de ambas webs, parámetros por web, historial | Listo |
 | 5 | mdiaz.cl lee catálogo y parámetros (`api/proyectos.mjs`) y envía registro + evaluación a `web_leads` | Listo |
-| 6 | Crear el proyecto Supabase en la organización IMOBU (plan free) | **Pendiente (requiere acceso a la organización)** |
-| 7 | Ejecutar `supabase/web.sql`; agregar administradores; invitar usuarios en Authentication | Pendiente (tras el paso 6) |
+| 6 | Proyecto Supabase `imobu-mdiaz` en la organización IMOBU (plan free) | Listo (creado por IMOBU) |
+| 7 | Ejecutar `supabase/web.sql`; agregar administradores; invitar usuarios en Authentication | Esquema aplicado y braulio@brouk.cl como admin. **Pendiente: invitar usuarios en Authentication** |
 | 8 | Cargar el catálogo con los datos definitivos (desde la intranet, o `catalogo-actual.sql` como punto de partida) | Pendiente (datos por entregar) |
-| 9 | Conectar: `public/js/conexion.js` + variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` en los dos proyectos de Vercel | Pendiente (tras el paso 6) |
+| 9 | Conectar: `public/js/conexion.js` + variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` en los dos proyectos de Vercel | Listo |
 | 10 | Deploy hook de Vercel para imobu.cl (`VERCEL_DEPLOY_HOOK_URL`) para regenerar las fichas al cambiar proyectos | Pendiente |
 | 11 | Probar de punta a punta: crear proyecto en la intranet → aparece en ambas webs; enviar cada formulario → aparece en Formularios | Pendiente |
 
