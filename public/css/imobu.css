@@ -265,6 +265,32 @@ h2 { font-size: clamp(28px, 4vw, 38px); line-height: 1.15; font-weight: 800; let
 /* CATÁLOGO DE PROYECTOS */
 .filters { margin-top: 32px; background: var(--white); border-radius: 24px; box-shadow: var(--shadow-sm); padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; align-items: end; }
 .results-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin: 28px 0 20px; font-size: 15px; color: var(--muted); }
+/* Catálogo: barra de filtros en una línea (buscador + selectores + limpiar) */
+.filters--linea { grid-template-columns: minmax(200px, 1.5fr) repeat(5, minmax(0, 1fr)) auto; gap: 14px 12px; padding: 18px 20px; }
+.filters--linea .field { font-size: 12px; }
+.filters--linea .field select, .filters--linea .field input { min-height: 44px; font-size: 14px; padding: 0 12px; }
+.filters--linea .field select { padding-right: 30px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23DC0E54' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 13px; }
+.filters__input { position: relative; display: block; }
+.filters__input svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.filters--linea .filters__input input { padding-left: 36px; }
+.filters--linea .filters__input input::placeholder { color: var(--field); font-weight: 400; }
+.filters__limpiar { align-self: end; padding: 12px 0; white-space: nowrap; }
+/* Catálogo: grilla de 4 columnas con tarjetas compactas */
+.projects--catalogo { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.projects--catalogo .project { border-radius: 18px; display: flex; flex-direction: column; }
+.projects--catalogo .project__media { margin: 6px; height: 160px; border-radius: 12px; }
+.projects--catalogo .project__media .badge { top: 10px; left: 10px; font-size: 11px; padding: 3px 8px; }
+.projects--catalogo .project__body { padding: 10px 16px 16px; display: flex; flex-direction: column; flex: 1; }
+.projects--catalogo .project__dev { font-size: 12px; }
+.projects--catalogo .project h3 { font-size: 17px; line-height: 1.25; }
+.projects--catalogo .project__place { margin-bottom: 8px; font-size: 13px; }
+.projects--catalogo .project__specs { margin-bottom: 12px; font-size: 12px; gap: 4px 12px; }
+.projects--catalogo .project__foot { margin-top: auto; padding-top: 12px; align-items: center; gap: 8px; }
+.projects--catalogo .project__foot .price { font-size: 20px; }
+.projects--catalogo .project__foot .btn--sm { min-height: 38px; padding: 0 14px; font-size: 13px; white-space: nowrap; }
+.projects--catalogo .project__div { font-size: 11px; margin-top: 8px; }
+.catalogo-mas { text-align: center; margin-top: 36px; }
+.catalogo-mas small { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); }
 .results-bar strong { color: var(--ink); }
 .link-btn { font-family: inherit; font-size: 14px; font-weight: 700; color: var(--pink-dark); background: none; border: 0; padding: 8px 0; cursor: pointer; text-decoration: underline; }
 .project__specs { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 16px; font-size: 13px; color: var(--muted); }
@@ -386,6 +412,10 @@ a.project__media { display: block; }
 
 /* Responsive */
 @media (max-width: 1080px) {
+  .filters--linea { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filters__buscar { grid-column: 1 / -1; }
+  .filters__limpiar { grid-column: 1 / -1; justify-self: end; padding: 0; }
+  .projects--catalogo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .eval-layout { grid-template-columns: 1fr; }
   .diag { position: static; }
   .pdp { grid-template-columns: 1fr; }
@@ -403,6 +433,7 @@ a.project__media { display: block; }
   .nav.is-open .nav__cta { display: inline-flex; order: 4; width: 100%; margin-bottom: 6px; }
 }
 @media (max-width: 900px) {
+  .projects--catalogo { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .benefits { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
@@ -434,6 +465,9 @@ a.project__media { display: block; }
   .wizard__nav .btn { width: auto; }
   .wizard__step-count { display: none; }
   .filters { grid-template-columns: 1fr; }
+  .filters--linea { grid-template-columns: 1fr 1fr; }
+  .projects--catalogo { grid-template-columns: 1fr; }
+  .projects--catalogo .project__media { height: 200px; }
   .topbar__long { display: none; }
   .topbar { font-size: 13px; }
   .btn { width: 100%; white-space: normal; text-align: center; }

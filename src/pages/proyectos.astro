@@ -15,23 +15,30 @@ import Base from '../layouts/Base.astro';
     <a href="evaluacion.html" class="btn btn--outline">¿Hasta cuánto puedo invertir?</a>
   </div>
 
-  <form class="filters" id="filters" aria-label="Filtrar proyectos">
+  <form class="filters filters--linea" id="filters" aria-label="Filtrar proyectos">
+    <label class="field filters__buscar">Buscar
+      <span class="filters__input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
+        <input type="search" name="q" placeholder="Proyecto, comuna o inmobiliaria" autocomplete="off" maxlength="60">
+      </span>
+    </label>
     <label class="field">Comuna
-      <select name="comuna" id="f-comuna"><option value="">Todas las comunas</option></select>
+      <select name="comuna" id="f-comuna"><option value="">Todas</option></select>
     </label>
     <label class="field">Precio UF
       <select name="precio">
-        <option value="">Cualquier precio</option>
-        <option value="0-3000">Hasta UF 3.000</option>
-        <option value="3000-5000">UF 3.000 – 5.000</option>
-        <option value="5000-99999">Sobre UF 5.000</option>
+        <option value="">Cualquiera</option>
+        <option value="0-2500">Hasta 2.500</option>
+        <option value="2500-3500">2.500 – 3.500</option>
+        <option value="3500-5000">3.500 – 5.000</option>
+        <option value="5000-999999">Sobre 5.000</option>
       </select>
     </label>
-    <label class="field">Tipo de entrega
+    <label class="field">Entrega
       <select name="entrega">
         <option value="">Todas</option>
-        <option value="inmediata">Entrega inmediata</option>
-        <option value="futura">Entrega futura</option>
+        <option value="inmediata">Inmediata</option>
+        <option value="futura">Futura</option>
       </select>
     </label>
     <label class="field">Dormitorios
@@ -43,21 +50,25 @@ import Base from '../layouts/Base.astro';
         <option value="3">3 dormitorios</option>
       </select>
     </label>
-    <label class="field">Ordenar por
+    <label class="field">Ordenar
       <select name="orden">
         <option value="destacados">Destacados</option>
         <option value="precio-asc">Menor precio</option>
         <option value="precio-desc">Mayor precio</option>
       </select>
     </label>
+    <button type="button" class="link-btn filters__limpiar" id="clear-filters">Limpiar</button>
   </form>
 
   <div class="results-bar">
     <span id="results-count" role="status">Cargando proyectos…</span>
-    <button type="button" class="link-btn" id="clear-filters">Limpiar filtros</button>
   </div>
 
-  <div class="projects" id="catalog"></div>
+  <div class="projects projects--catalogo" id="catalog"></div>
+  <div class="catalogo-mas" id="catalogo-mas" hidden>
+    <button type="button" class="btn btn--outline" id="catalogo-mas-btn">Mostrar más proyectos</button>
+    <small id="catalogo-mas-nota"></small>
+  </div>
   <div class="empty" id="empty-state">
     No encontramos proyectos con esos filtros por ahora.<br>
     <a href="evaluacion.html" style="font-weight: 700">Haz tu evaluación</a> y un asesor te mostrará alternativas que calcen contigo.
