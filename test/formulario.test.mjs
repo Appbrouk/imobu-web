@@ -7,7 +7,7 @@ process.env.ALLOWED_ORIGINS = 'https://imobu.cl';
 process.env.FORWARD_WEBHOOK_URL = 'https://brouk.test/api/leads';
 process.env.FORWARD_WEBHOOK_TOKEN = 'tok';
 process.env.SUPABASE_URL = 'https://x.supabase.co';
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'srv';
+process.env.SUPABASE_ANON_KEY = 'anon';
 
 const llamadas = [];
 globalThis.fetch = async (url, opts) => { llamadas.push({ url, opts }); return { ok: true, json: async () => ({}) }; };
@@ -33,7 +33,9 @@ test('cliente: va a la base y a Brouk con token e Idempotency-Key', async () => 
   const cuerpo = JSON.parse(brouk.opts.body);
   assert.equal(cuerpo.origen, 'imobu-web');
   assert.equal(cuerpo.asesor, 'marcela-diaz');
-  assert.ok(llamadas.some((l) => l.url.endsWith('/rest/v1/imobu_leads')), 'no se guardó en la base');
+  const base = llamadas.find((l) => l.url.endsWith('/rest/v1/web_leads'));
+  assert.ok(base, 'no se guardó en la base compartida');
+  assert.equal(JSON.parse(base.opts.body).sitio, 'imobu');
 });
 
 test('broker: solo a la base, nunca a Brouk', async () => {
@@ -42,5 +44,5 @@ test('broker: solo a la base, nunca a Brouk', async () => {
   await handler(req('postulacion-broker', { nombre: 'Luis', telefono: '+56987654321', email: 'l@e.cl', comuna: 'Maipú', experiencia: '1 a 3 años', disponibilidad: 'Part time', acepto: 'on' }), r);
   assert.equal(r.code, 200);
   assert.ok(!llamadas.some((l) => l.url === process.env.FORWARD_WEBHOOK_URL), 'un broker se reenvió a Brouk');
-  assert.ok(llamadas.some((l) => l.url.endsWith('/rest/v1/imobu_leads')));
+  assert.ok(llamadas.some((l) => l.url.endsWith('/rest/v1/web_leads')));
 });

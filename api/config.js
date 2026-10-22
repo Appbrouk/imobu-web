@@ -1,9 +1,11 @@
 // ─────────────────────────────────────────────────────────────
 // IMOBU — parámetros publicados desde la intranet (Vercel Serverless Function)
-// Ruta: GET /api/config  →  JavaScript que reemplaza los valores de js/config.js.
+// Ruta: GET /api/config  →  JavaScript que reemplaza los valores de js/config.js
+// (parámetros del sitio + proyectos activos de la base compartida, ver supabase/web.sql).
 // Variables de entorno: SUPABASE_URL y SUPABASE_ANON_KEY (públicas; la escritura la protege la base de datos).
-// Si algo falla, responde un comentario vacío y el sitio sigue usando js/config.js.
+// Si algo falla, responde un comentario vacío y el sitio sigue usando js/config.js (generado en build).
 // ─────────────────────────────────────────────────────────────
+import { leerConfigImobu } from '../src/lib/web-db.mjs';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
@@ -18,21 +20,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 2500);
-    const r = await fetch(`${url}/rest/v1/imobu_config?id=eq.1&select=data`, {
-      // Claves nuevas (sb_publishable_…) van solo en apikey; las antiguas (JWT) también en Authorization
-      headers: key.startsWith('eyJ') ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key },
-      signal: ctrl.signal
-    });
-    clearTimeout(timer);
-    const filas = r.ok ? await r.json() : [];
-    if (!Array.isArray(filas) || !filas.length || typeof filas[0].data !== 'object') {
+    const config = await leerConfigImobu({ url, key, timeout: 2500 });
+    if (!config) {
       res.setHeader('Cache-Control', 'public, s-maxage=30');
       return res.status(200).send('/* sin parámetros publicados: se usa js/config.js */');
     }
     // JSON seguro para incrustar en JavaScript
-    const json = JSON.stringify(filas[0].data)
+    const json = JSON.stringify(config)
       .replace(/</g, '\\u003c')
       .split(String.fromCharCode(0x2028)).join('\\u2028')
       .split(String.fromCharCode(0x2029)).join('\\u2029');

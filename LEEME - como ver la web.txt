@@ -14,15 +14,15 @@ QUÉ REVISAR
 - broker.html ........... Programa "Sé broker IMOBU"
 - marcela/index.html .... Landing de la asesora Marcela Díaz
 - legal.html ............ Privacidad y términos
-- Intranet .............. Botón "Intranet" al final de cualquier página (parámetros del sitio)
+- Intranet .............. Botón "Intranet" al final de cualquier página. Es compartida con mdiaz.cl:
+                          proyectos (un solo catálogo para ambas webs), formularios recibidos y parámetros de cada web.
 
 IMPORTANTE: ES UNA VERSIÓN DE REVISIÓN
 - Los formularios todavía NO envían datos: muestran la confirmación, pero no le llega nada a nadie.
   Pruébenlos con datos inventados.
 - 6 de los 9 proyectos son de ejemplo (aparecen como "Inmobiliaria aliada"). Los testimonios también son de ejemplo.
 - Los textos legales son un borrador: falta completar razón social, RUT y plazos, y revisarlos con un abogado.
-- La intranet en esta versión entra sin clave y los cambios solo se ven en tu propio computador
-  (no cambian la web de nadie más). La clave se activa cuando el sitio se publique conectado.
+- La intranet solo funciona conectada a la base de datos compartida (ver docs/INTRANET-COMPARTIDA.md).
 
 CÓMO DAR COMENTARIOS
 Indica página + sección + qué cambiarías. Una captura de pantalla ayuda mucho.
@@ -30,4 +30,5 @@ Indica página + sección + qué cambiarías. Una captura de pantalla ayuda much
 PARA QUIEN LA VAYA A PUBLICAR (técnico)
 El sitio se construye con Astro (src/pages, src/layouts; lo estático va en public/). Las carpetas api/ y supabase/
 y los archivos vercel.json y SEGURIDAD.md sirven para publicarla en Vercel con formularios seguros e intranet con clave.
-Los parámetros del sitio están en src/data/config.json y, una vez conectada la intranet, en Supabase.
+Los parámetros del sitio y los proyectos están en src/data/config.json como respaldo y, una vez conectada la intranet,
+en la base compartida de Supabase (supabase/web.sql). Roadmap y activación: docs/INTRANET-COMPARTIDA.md.
